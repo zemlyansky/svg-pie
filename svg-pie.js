@@ -18,7 +18,8 @@
     // Merged later with user options
     var defaultOptions = {
       innerRadiusSize: .7,
-      legend: true
+      legend: true,
+      colors: ['#004A7C','#CDFC41','#A2A2A1']
     }
     this.options = Object.assign(defaultOptions, userOptions)
 
@@ -30,8 +31,20 @@
                   .style('justify-content','center')
                   .style('align-items','center')
 
-    var color = d3.scaleOrdinal(d3.schemeCategory10)
-
+    var colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
+    console.log(this.options.colors.map(function(color, index){
+      return index * colorCoeff
+    }))
+    var color = d3//.scaleOrdinal()
+                  // .range(this.options.colors)
+                  .scaleLinear()
+                  .domain(this.options.colors.map(function(color, index){
+                    return index * colorCoeff
+                  }))
+                  .interpolate(d3.interpolateHcl)
+                  .range(this.options.colors.map(function(color){
+                      return d3.rgb(color)
+                  }))
     var svg = d3.select(selector)
                 .append('svg')
                 .style('position','absolute')
@@ -82,7 +95,7 @@
                 .merge(path)
                   .attr('d', arc)
                   .attr('fill', function(d, i) {
-                    return color(d.data.label)
+                    return color(i)
                   })
 
       if (this.options.legend) {
@@ -99,7 +112,7 @@
         chartElement.addEventListener('mousemove', function(event) {
           var lY = event.layerY
           var lX = event.layerX
-          console.log(lX,lY)
+
           var top = (lY < height / 2)
                   ? lY + 20
                   : lY - parseInt(tooltip.style('height')) - parseInt(tooltip.style('padding-top')) - parseInt(tooltip.style('padding-bottom')) - 20
