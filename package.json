@@ -1,0 +1,24 @@
+{
+  "name": "svg-pie",
+  "version": "0.0.1",
+  "description": "Vector pie charts with D3",
+  "main": "svg-pie.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "uglifyjs svg-pie.js -c -m -o svg-pie.min.js && browserify svg-pie.js -s SvgPie | uglifyjs -c -m -o svg-pie.bundle.min.js",
+    "watch": "nodemon --exec npm run build --watch svg-pie.js"
+  },
+  "author": "Anton Zemlyansky",
+  "license": "ISC",
+  "dependencies": {
+    "d3-scale": "^1.0.5",
+    "d3-selection": "^1.0.5",
+    "d3-shape": "^1.0.6"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-preset-env": "^1.2.1",
+    "nodemon": "^1.11.0",
+    "uglifyjs": "^2.4.10"
+  }
+}
