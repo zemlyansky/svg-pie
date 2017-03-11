@@ -9,8 +9,14 @@
     "watch": "nodemon --exec npm run build --watch svg-pie.js"
   },
   "author": "Anton Zemlyansky",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zemlyansky/svg-pie.git"
+  },
   "license": "ISC",
   "dependencies": {
+    "d3-color": "^1.0.3",
+    "d3-interpolate": "^1.1.4",
     "d3-scale": "^1.0.5",
     "d3-selection": "^1.0.5",
     "d3-shape": "^1.0.6"

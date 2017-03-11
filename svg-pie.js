@@ -5,7 +5,9 @@
         var d3 = Object.assign({},
           require('d3-scale'),
           require('d3-selection'),
-          require('d3-shape')
+          require('d3-shape'),
+          require('d3-color'),
+          require('d3-interpolate')
         )
         module.exports = factory(d3)
     } else {
@@ -32,9 +34,6 @@
                   .style('align-items','center')
 
     var colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
-    console.log(this.options.colors.map(function(color, index){
-      return index * colorCoeff
-    }))
     var color = d3//.scaleOrdinal()
                   // .range(this.options.colors)
                   .scaleLinear()
