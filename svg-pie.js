@@ -23,12 +23,12 @@
     this.options = Object.assign(defaultOptions, userOptions)
 
     // Select chart element
+    var chartElement = document.querySelector(selector)
     var chart = d3.select(selector)
                   .style('position', 'relative')
                   .style('display', 'flex')
                   .style('justify-content','center')
                   .style('align-items','center')
-
 
     var color = d3.scaleOrdinal(d3.schemeCategory10)
 
@@ -95,19 +95,24 @@
 
 
         })
-        updPath.on('mousemove', function(d) {
-          var layerY = event.layerY
-          var layerX = event.layerX
-          var top = (layerY < height / 2)
-                ? layerY + 20
-                : layerY - parseInt(tooltip.style('height')) - parseInt(tooltip.style('padding')) - 20
-          var left = (layerX < width / 2)
-                ? layerX + 20
-                : layerX - parseInt(tooltip.style('width')) - parseInt(tooltip.style('padding')) - 20
+
+        chartElement.addEventListener('mousemove', function(event) {
+          var lY = event.layerY
+          var lX = event.layerX
+          console.log(lX,lY)
+          var top = (lY < height / 2)
+                  ? lY + 20
+                  : lY - parseInt(tooltip.style('height')) - parseInt(tooltip.style('padding-top')) - parseInt(tooltip.style('padding-bottom')) - 20
+
+          var left = (lX < width / 2)
+                   ? lX + 20
+                   : lX - parseInt(tooltip.style('width')) - parseInt(tooltip.style('padding-left')) - parseInt(tooltip.style('padding-right')) - 20
+
           tooltip
                 .style('top', top + 'px')
                 .style('left', left + 'px');
         })
+
         updPath.on('mouseout', function(d) {
           tooltip.style('display', 'none')
         })
