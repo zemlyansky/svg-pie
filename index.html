@@ -10,8 +10,8 @@
       .tooltip {
         font-size: .8em;
         background: white;
-        border: 1px solid rgba(0,0,0,.1);
-        padding: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,.2);
+        padding: 10px;
         opacity: .8;
       }
       .tooltip-label {
@@ -21,7 +21,7 @@
     </style>
   </head>
   <body>
-    <div class="container" style="width: 30%">
+    <div class="container" style="width: 25%">
       <div id="chart">Content<br>inside</div>
     </div>
     <script src="https://d3js.org/d3.v4.js"></script>
@@ -32,8 +32,12 @@
           {label: 'Ben', value: 10},
           {label: 'Bill', value: 20},
           {label: 'Jane', value: 70},
+          {label: 'Bill', value: 20},
+          {label: 'Jane', value: 70},
+          {label: 'Bill', value: 20},
+          {label: 'Jane', value: 70},
         ],
-        innerRadiusSize: .95
+        innerRadiusSize: .9
       })
       console.log(d)
     </script>

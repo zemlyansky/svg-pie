@@ -96,8 +96,8 @@
 
         })
         updPath.on('mousemove', function(d) {
-          var layerY = d3.event.layerY
-          var layerX = d3.event.layerX
+          var layerY = event.layerY
+          var layerX = event.layerX
           var top = (layerY < height / 2)
                 ? layerY + 20
                 : layerY - parseInt(tooltip.style('height')) - parseInt(tooltip.style('padding')) - 20
