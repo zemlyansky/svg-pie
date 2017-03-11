@@ -14,20 +14,24 @@
 }(this, function (d3) {
 
   return function SvgPie(selector, userOptions) {
-    var chart = d3.select(selector)
-
-    chart.style('position', 'relative')
-         .style('display', 'flex')
-         .style('justify-content','center')
-         .style('align-items','center')
-
+    // Default options
+    // Merged later with user options
     var defaultOptions = {
       innerRadiusSize: .7,
       legend: true
     }
+    this.options = Object.assign(defaultOptions, userOptions)
 
-    var options = Object.assign(defaultOptions, userOptions)
+    // Select chart element
+    var chart = d3.select(selector)
+                  .style('position', 'relative')
+                  .style('display', 'flex')
+                  .style('justify-content','center')
+                  .style('align-items','center')
+
+
     var color = d3.scaleOrdinal(d3.schemeCategory10)
+
     var svg = d3.select(selector)
                 .append('svg')
                 .style('position','absolute')
@@ -40,33 +44,38 @@
                          .sort(null)
     var tooltip
 
-    if (options.legend) {
+    //Appending tooltip element
+    if (this.options.legend) {
       var tooltip = chart
                      .append('div')
                      .attr('class','tooltip')
                      .style('position','absolute')
-      tooltip.append('span')
+                     .style('display','none')
+                     .style('pointer-events','none')
+      tooltip.append('div')
+                     .attr('class','tooltip-label')
+      tooltip.append('div')
                      .attr('class','tooltip-value')
     }
 
     this.update = function() {
-      var containerWidth = parseInt((chart.style('width')))
-      var width = containerWidth
-      var height = (containerWidth > 600) ? containerWidth / 2 : containerWidth
+      var width = parseInt((chart.style('width')))
+      var height = (width > 600) ? width / 1.5 : width
       var outerRadius = Math.min(width, height) / 2
-      var innerRadius = outerRadius * options.innerRadiusSize
+      var innerRadius = outerRadius * this.options.innerRadiusSize
+
+      //Updating chart elements with new width and height
+      chart.style('height', height + 'px')
+      svg.attr('width', width)
+         .attr('height', height)
+      g.attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')')
+
       var arc = d3.arc()
                   .innerRadius(innerRadius)
                   .outerRadius(outerRadius)
 
-      chart.style('height', height + 'px')
-      svg.attr('width', width)
-         .attr('height', height)
-
-      g.attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')')
-
       var path = g.selectAll('path')
-                  .data(pieGenerator(options.dataset))
+                  .data(pieGenerator(this.options.dataset))
 
       var updPath = path.enter()
                   .append('path')
@@ -75,23 +84,35 @@
                   .attr('fill', function(d, i) {
                     return color(d.data.label)
                   })
-                  if (options.legend) {
-                    updPath.on('mouseover', function(d) {
-                      tooltip.style('display','block')
-                            .select('.tooltip-value')
-                            .text(d.value)
-                    })
-                    updPath.on('mousemove', function(d) {
-                      tooltip
-                            .style('top', (d3.event.layerY + 10) + 'px')
-                            .style('left', (d3.event.layerX + 10) + 'px');
-                    })
-                    updPath.on('mouseout', function(d) {
-                      tooltip.style('display', 'none')
-                    })
-                  }
 
-    } //End of draw
+      if (this.options.legend) {
+        updPath.on('mouseover', function(d) {
+          tooltip.style('display','block')
+          tooltip.select('.tooltip-label')
+                 .text(d.data.label)
+          tooltip.select('.tooltip-value')
+                 .text(d.value)
+
+
+        })
+        updPath.on('mousemove', function(d) {
+          var layerY = d3.event.layerY
+          var layerX = d3.event.layerX
+          var top = (layerY < height / 2)
+                ? layerY + 20
+                : layerY - parseInt(tooltip.style('height')) - parseInt(tooltip.style('padding')) - 20
+          var left = (layerX < width / 2)
+                ? layerX + 20
+                : layerX - parseInt(tooltip.style('width')) - parseInt(tooltip.style('padding')) - 20
+          tooltip
+                .style('top', top + 'px')
+                .style('left', left + 'px');
+        })
+        updPath.on('mouseout', function(d) {
+          tooltip.style('display', 'none')
+        })
+      }
+    }.bind(this) //End of update()
 
     this.update()
     d3.select(window).on('resize', this.update);

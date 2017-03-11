@@ -3,10 +3,27 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      .tooltip {
+        font-size: .8em;
+        background: white;
+        border: 1px solid rgba(0,0,0,.1);
+        padding: 5px;
+        opacity: .8;
+      }
+      .tooltip-label {
+        font-size: 1.2em;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body>
-    <div id="chart" style="width: 30%">Content<br>inside</div>
-    <div id="experiment"></div>
+    <div class="container" style="width: 30%">
+      <div id="chart">Content<br>inside</div>
+    </div>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src="svg-pie.js" charset="utf-8"></script>
     <script type="text/javascript">
@@ -18,6 +35,7 @@
         ],
         innerRadiusSize: .95
       })
+      console.log(d)
     </script>
   </body>
 </html>
