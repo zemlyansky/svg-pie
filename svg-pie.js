@@ -21,6 +21,7 @@
     var defaultOptions = {
       innerRadiusSize: .7,
       legend: true,
+      showTooltip: true,
       sort: false,
       colors: ['#004A7C','#CDFC41','#A2A2A1']
     }
@@ -46,10 +47,11 @@
     var pieGenerator = d3.pie()
                          .value(function(d) {return d.value})
                          .sort(null)
-    var tooltip
+
+    var path, updPath, color, colorCoeff
 
     //Appending tooltip element
-    if (this.options.legend) {
+    if (this.options.showTooltip) {
       var tooltip = chart
                      .append('div')
                      .attr('class','tooltip')
@@ -63,7 +65,6 @@
     }
 
     this.update = function() {
-      console.log('updated')
       if (typeof(this.options.values) === 'number') {
         this.options.values = [this.options.values]
       }
@@ -87,6 +88,29 @@
           return b.value - a.value
         })
       }
+
+      path = g.selectAll('path')
+                  .data(pieGenerator(this.options.dataset))
+
+      updPath = path.enter()
+                        .append('path')
+                        .merge(path)
+
+      colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
+      color = d3//.scaleOrdinal()
+                    // .range(this.options.colors)
+                    .scaleLinear()
+                    .domain(this.options.colors.map(function(color, index){
+                      return index * colorCoeff
+                    }))
+                    .interpolate(d3.interpolateHcl)
+                    .range(this.options.colors.map(function(color){
+                        return d3.rgb(color)
+                    }))
+      this.render()
+    }.bind(this)
+
+    this.render = function() {
       var width = parseInt((chart.style('width')))
       var height = (width > 600) ? width / 1.5 : width
       var outerRadius = Math.min(width, height) / 2
@@ -102,38 +126,18 @@
                   .innerRadius(innerRadius)
                   .outerRadius(outerRadius)
 
-      var path = g.selectAll('path')
-                  .data(pieGenerator(this.options.dataset))
-
-      var colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
-      var color = d3//.scaleOrdinal()
-                    // .range(this.options.colors)
-                    .scaleLinear()
-                    .domain(this.options.colors.map(function(color, index){
-                      return index * colorCoeff
-                    }))
-                    .interpolate(d3.interpolateHcl)
-                    .range(this.options.colors.map(function(color){
-                        return d3.rgb(color)
-                    }))
-
-      var updPath = path.enter()
-                  .append('path')
-                .merge(path)
-                  .attr('d', arc)
+      updPath     .attr('d', arc)
                   .attr('fill', function(d, i) {
                     return color(i)
                   })
 
-      if (this.options.legend) {
+      if (this.options.showTooltip) {
         updPath.on('mouseover', function(d) {
           tooltip.style('display','block')
           tooltip.select('.tooltip-label')
                  .text(d.data.label)
           tooltip.select('.tooltip-value')
                  .text(d.value)
-
-
         })
 
         chartElement.addEventListener('mousemove', function(event) {
@@ -160,6 +164,7 @@
     }.bind(this) //End of update()
 
     this.update()
-    d3.select(window).on('resize', this.update);
+
+    d3.select(window).on('resize', this.render);
   } // End of SvgPie constructor
 })) // End of factory
