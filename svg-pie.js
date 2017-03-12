@@ -63,6 +63,10 @@
     }
 
     this.update = function() {
+      console.log('updated')
+      if (typeof(this.options.values) === 'number') {
+        this.options.values = [this.options.values]
+      }
       if (typeof(this.options.dataset) === 'undefined' && typeof(this.options.values) !== 'undefined') {
         this.options.dataset = []
         this.options.values.forEach(function (value, index) {
@@ -72,7 +76,13 @@
           })
         })
       }
-      if (typeof(this.options.sort) === 'boolean' && this.options.sort) {
+      if (this.options.dataset.length === 1) {
+        this.options.dataset.push({
+          value: 100 - this.options.dataset[0].value,
+          label: ''
+        })
+      }
+      if (typeof(this.options.sort) === 'boolean' && this.options.sort && this.options.dataset.length > 1) {
         this.options.dataset.sort(function (a, b) {
           return b.value - a.value
         })
