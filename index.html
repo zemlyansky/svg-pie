@@ -28,15 +28,17 @@
     <script src="svg-pie.js" charset="utf-8"></script>
     <script type="text/javascript">
       var d = new SvgPie('#chart', {
-        dataset: [
-          {label: 'Ben', value: 10},
-          {label: 'Bill', value: 20},
-          {label: 'Jane', value: 70},
-          {label: 'Bill', value: 20},
-          {label: 'Jane', value: 70},
-          {label: 'Bill', value: 20},
-          {label: 'Jane', value: 70},
-        ],
+        // dataset: [
+        //   {label: 'Ben', value: 10},
+        //   {label: 'Bill', value: 20},
+        //   {label: 'Jane', value: 70},
+        //   {label: 'Bill', value: 20},
+        //   {label: 'Jane', value: 70},
+        //   {label: 'Bill', value: 20},
+        //   {label: 'Jane', value: 70},
+        // ],
+        values: [30, 10, 70],
+        labels: ['Bill', 'Jane', 'Monica'],
         innerRadiusSize: .9,
         sort: true
         // colors: ['#FF0000','#0055EE']

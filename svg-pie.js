@@ -26,6 +26,8 @@
     }
     this.options = Object.assign(defaultOptions, userOptions)
 
+    var that = this
+
     // Select chart element
     var chartElement = document.querySelector(selector)
     var chart = d3.select(selector)
@@ -34,17 +36,6 @@
                   .style('justify-content','center')
                   .style('align-items','center')
 
-    var colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
-    var color = d3//.scaleOrdinal()
-                  // .range(this.options.colors)
-                  .scaleLinear()
-                  .domain(this.options.colors.map(function(color, index){
-                    return index * colorCoeff
-                  }))
-                  .interpolate(d3.interpolateHcl)
-                  .range(this.options.colors.map(function(color){
-                      return d3.rgb(color)
-                  }))
     var svg = d3.select(selector)
                 .append('svg')
                 .style('position','absolute')
@@ -72,8 +63,17 @@
     }
 
     this.update = function() {
+      if (typeof(this.options.dataset) === 'undefined' && typeof(this.options.values) !== 'undefined') {
+        this.options.dataset = []
+        this.options.values.forEach(function (value, index) {
+          that.options.dataset.push({
+            value: value,
+            label: (typeof(that.options.labels) !== 'undefined') ? that.options.labels[index] : ''
+          })
+        })
+      }
       if (typeof(this.options.sort) === 'boolean' && this.options.sort) {
-        this.options.dataset.sort(function(a,b) {
+        this.options.dataset.sort(function (a, b) {
           return b.value - a.value
         })
       }
@@ -94,6 +94,18 @@
 
       var path = g.selectAll('path')
                   .data(pieGenerator(this.options.dataset))
+
+      var colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
+      var color = d3//.scaleOrdinal()
+                    // .range(this.options.colors)
+                    .scaleLinear()
+                    .domain(this.options.colors.map(function(color, index){
+                      return index * colorCoeff
+                    }))
+                    .interpolate(d3.interpolateHcl)
+                    .range(this.options.colors.map(function(color){
+                        return d3.rgb(color)
+                    }))
 
       var updPath = path.enter()
                   .append('path')
