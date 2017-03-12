@@ -6,8 +6,8 @@ From NPM :
     npm install svg-pie
 
 Download:
-    [Minified version](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.min.js)
-    [Minified version with all needed D3 modules](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.bundle.min.js)
+* [Minified version](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.min.js)
+* [Minified version with all needed D3 modules](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.bundle.min.js)
 
 ##Features
 * tooltips
@@ -21,11 +21,12 @@ Download:
 ##Usage
 
 ###DOM
-Add `<div id="chart"></div>` where you want to place a pie chart
+Add `<div id="chart"></div>` where you want to place a pie chart.
 Feel free to add any content between `<div>` and `</div>`. It'll be centered.
 
 ###Javascript   
 The module return a constructor that accepts two parameters: `selector` and `options`
+
 ####CommonJS
 ```javascript
 var SvgChart = require('svg-pie')
@@ -98,7 +99,7 @@ new SvgPie('#chart', {
     <tr>
         <td><strong>innerRadiusSize</strong></td>
         <td><code>0.7</code></td>
-        <td>Float [0,1]. The size of inneRadius comparing to outerRadius</td>
+        <td>Float [0,1]. The size of innerRadius comparing to outerRadius</td>
     </tr>
     <tr>
         <td><strong>colors</strong></td>
@@ -108,8 +109,8 @@ new SvgPie('#chart', {
 </table>
 
 ###Style
-By default a chart, inner content and a tooltip have no styling.
-To style the tooltip use CSS and `.tooltip`, `.tooltip-label` and `.tooltip-value` selectors.
+By default a chart, its inner content and a tooltip have no styling.
+To style the tooltip use CSS and `.tooltip`, `.tooltip-label`, `.tooltip-value` selectors.
 For example:
 ```CSS
 .tooltip {
@@ -128,6 +129,6 @@ For example:
 To style inner content of the chart, feel free to add your own DOM elements:
 ```html
 <div id="chart">
-  <div class="your-new-element"></div>
+  <div class="your-new-element">70%</div>
 </div>
 ```

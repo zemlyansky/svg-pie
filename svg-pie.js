@@ -65,9 +65,11 @@
     }
 
     this.update = function() {
+      // Check if there's a number instead of array
       if (typeof(this.options.values) === 'number') {
         this.options.values = [this.options.values]
       }
+      // Convert labels and values arrays to the main array of objects
       if (typeof(this.options.dataset) === 'undefined' && typeof(this.options.values) !== 'undefined') {
         this.options.dataset = []
         this.options.values.forEach(function (value, index) {
@@ -77,36 +79,42 @@
           })
         })
       }
+      // Check if there's on only one value. Calculate a second one ~ percentage
       if (this.options.dataset.length === 1) {
         this.options.dataset.push({
           value: 100 - this.options.dataset[0].value,
           label: ''
         })
       }
+      // Sort
       if (typeof(this.options.sort) === 'boolean' && this.options.sort && this.options.dataset.length > 1) {
         this.options.dataset.sort(function (a, b) {
           return b.value - a.value
         })
       }
 
+      // New path selection
       path = g.selectAll('path')
-                  .data(pieGenerator(this.options.dataset))
+        .data(pieGenerator(this.options.dataset))
 
-      updPath = path.enter()
-                        .append('path')
-                        .merge(path)
+      // New and updated elements
+      updPath = path
+        .enter()
+        .append('path')
+        .merge(path)
 
+      // Calculate color gradient according to the data length
       colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
-      color = d3//.scaleOrdinal()
-                    // .range(this.options.colors)
-                    .scaleLinear()
-                    .domain(this.options.colors.map(function(color, index){
-                      return index * colorCoeff
-                    }))
-                    .interpolate(d3.interpolateHcl)
-                    .range(this.options.colors.map(function(color){
-                        return d3.rgb(color)
-                    }))
+      color = d3.scaleLinear()
+        .domain(this.options.colors.map(function(color, index){
+          return index * colorCoeff
+        }))
+        .interpolate(d3.interpolateHcl)
+        .range(this.options.colors.map(function(color){
+          return d3.rgb(color)
+        }))
+
+      // Render the chart
       this.render()
     }.bind(this)
 
@@ -161,7 +169,7 @@
           tooltip.style('display', 'none')
         })
       }
-    }.bind(this) //End of update()
+    }.bind(this) // End of update()
 
     this.update()
 
