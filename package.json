@@ -1,6 +1,6 @@
 {
   "name": "svg-pie",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Vector pie charts with D3",
   "main": "svg-pie.js",
   "scripts": {

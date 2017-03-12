@@ -79,22 +79,27 @@ new SvgPie('#chart', {
     <tr>
         <td><strong>values</strong></td>
         <td><code>undefined</code></td>
-        <td>Array of numbers. Alternative to dataset (array of objects)</td>
+        <td>Array of numbers. Alternative to <code>dataset</code></td>
     </tr>
     <tr>
         <td><strong>labels</strong></td>
         <td><code>undefined</code></td>
-        <td>Array of strings. Alternative to dataset (array of objects)</td>
+        <td>Array of strings. Alternative to <code>dataset</code></td>
     </tr>
     <tr>
         <td><strong>showTooltip</strong></td>
         <td><code>true</code></td>
-        <td>Boolean. To show or not the tooltip</td>
+        <td>Boolean. To show or not a tooltip</td>
+    </tr>
+    <tr>
+        <td><strong>showLabels</strong></td>
+        <td><code>false</code></td>
+        <td>Boolean. To show or not labels on a chart</td>
     </tr>
     <tr>
         <td><strong>sort</strong></td>
         <td><code>false</code></td>
-        <td>Boolean. To sort the data or not</td>
+        <td>Boolean. To sort data or not</td>
     </tr>
     <tr>
         <td><strong>innerRadiusSize</strong></td>

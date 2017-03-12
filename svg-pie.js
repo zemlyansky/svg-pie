@@ -22,6 +22,7 @@
       innerRadiusSize: .7,
       legend: true,
       showTooltip: true,
+      showLabels: false,
       sort: false,
       colors: ['#004A7C','#CDFC41','#A2A2A1']
     }
@@ -48,7 +49,7 @@
                          .value(function(d) {return d.value})
                          .sort(null)
 
-    var path, updPath, color, colorCoeff
+    var path, chartLabels, color, colorCoeff
 
     //Appending tooltip element
     if (this.options.showTooltip) {
@@ -93,15 +94,32 @@
         })
       }
 
-      // New path selection
-      path = g.selectAll('path')
+      // Update
+      var segments = g.selectAll('.segment')
         .data(pieGenerator(this.options.dataset))
 
-      // New and updated elements
-      updPath = path
-        .enter()
-        .append('path')
-        .merge(path)
+      // Exit
+      segments.exit()
+        .remove()
+
+      // Enter
+      var enterSegments = segments.enter()
+        .append('g')
+        .attr('class', 'segment')
+      enterSegments.append('path')
+      if (typeof(this.options.showLabels) === 'boolean' && this.options.showLabels){
+        enterSegments.append('text')
+          .style('font-size','.8em')
+          .attr('class','chart-label')
+      }
+
+      // Update and Enter
+      var allSegments = enterSegments.merge(segments)
+      path = allSegments.select('path')
+      if (typeof(this.options.showLabels) === 'boolean' && this.options.showLabels){
+        chartLabels = allSegments.select('text')
+          .text(function(d) { return d.data.label })
+      }
 
       // Calculate color gradient according to the data length
       colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
@@ -127,20 +145,37 @@
       //Updating chart elements with new width and height
       chart.style('height', height + 'px')
       svg.attr('width', width)
-         .attr('height', height)
+        .attr('height', height)
       g.attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')')
 
       var arc = d3.arc()
-                  .innerRadius(innerRadius)
-                  .outerRadius(outerRadius)
+        .innerRadius(innerRadius)
+        .outerRadius(outerRadius)
 
-      updPath     .attr('d', arc)
-                  .attr('fill', function(d, i) {
-                    return color(i)
-                  })
+      if (typeof(this.options.showLabels) === 'boolean' && this.options.showLabels){
+        var r = outerRadius - 25
+        var labelArc = d3.arc()
+          .innerRadius(r)
+          .outerRadius(r)
+        chartLabels
+          .attr('transform', function(d) { return "translate(" + labelArc.centroid(d) + ")" })
+          .attr('dy', '0.35em')
+          .attr('dx', function(d) {
+            // Shifting labels on the right side to left
+            var centroid = labelArc.centroid(d)
+            if (centroid[0] > 0)
+              return (-(d.data.label.length*10)*labelArc.centroid(d)[0]/outerRadius).toFixed(0) + 'px'
+            else
+              return '0px';
+          })
+      }
+
+      path
+        .attr('d', arc)
+        .attr('fill', function(d, i) { return color(i) })
 
       if (this.options.showTooltip) {
-        updPath.on('mouseover', function(d) {
+        path.on('mouseover', function(d) {
           tooltip.style('display','block')
           tooltip.select('.tooltip-label')
                  .text(d.data.label)
@@ -165,7 +200,7 @@
                 .style('left', left + 'px');
         })
 
-        updPath.on('mouseout', function(d) {
+        path.on('mouseout', function(d) {
           tooltip.style('display', 'none')
         })
       }

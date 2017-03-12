@@ -7,6 +7,9 @@
       body {
         font-family: sans-serif;
       }
+      #chart {
+        margin-bottom: 30px;
+      }
       .tooltip {
         font-size: .8em;
         background: white;
@@ -23,27 +26,50 @@
   <body>
     <div class="container" style="width: 25%">
       <div id="chart">Content<br>inside</div>
+      <div id="chart2"></div>
     </div>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src="svg-pie.js" charset="utf-8"></script>
     <script type="text/javascript">
       var d = new SvgPie('#chart', {
-        // dataset: [
-        //   {label: 'Ben', value: 10},
-        //   {label: 'Bill', value: 20},
-        //   {label: 'Jane', value: 70},
-        //   {label: 'Bill', value: 20},
-        //   {label: 'Jane', value: 70},
-        //   {label: 'Bill', value: 20},
-        //   {label: 'Jane', value: 70},
-        // ],
         values: 30,
-        labels: ['Bill'],
+        labels: ['Test1'],
         innerRadiusSize: .9,
-        sort: true
+        sort: true,
+        showLabels: true
         // colors: ['#FF0000','#0055EE']
       })
-      console.log(d)
+      setTimeout(function () {
+        d.options.values = d.options.labels = undefined
+        d.options.dataset = [
+          {label: 'Ben', value: 5},
+          {label: 'Bill', value: 7},
+          {label: 'Bill', value: 10},
+          {label: 'Bill', value: 20},
+          {label: 'Jane', value: 8},
+          {label: 'Jane', value: 40},
+          {label: 'Jane', value: 10},
+        ]
+        d.update()
+      }, 5000);
+      setTimeout(function () {
+        d.options.values = d.options.labels = undefined
+        d.options.dataset = [
+          {label: 'Samanta', value: 55},
+          {label: 'Carl', value: 25},
+          {label: 'John', value: 20},
+        ]
+        d.update()
+      }, 15000);
+      var e = new SvgPie('#chart2', {
+        values: [60,30,10],
+        labels: ['60%', '30%', '10%'],
+        innerRadiusSize: 0,
+        sort: false,
+        showTooltip: false,
+        showLabels: true,
+        colors: ['#5FBB97','#8DDCA4','#F6AA1C']
+      })
     </script>
   </body>
 </html>
