@@ -21,6 +21,7 @@
     var defaultOptions = {
       innerRadiusSize: .7,
       legend: true,
+      sort: false,
       colors: ['#004A7C','#CDFC41','#A2A2A1']
     }
     this.options = Object.assign(defaultOptions, userOptions)
@@ -71,6 +72,11 @@
     }
 
     this.update = function() {
+      if (typeof(this.options.sort) === 'boolean' && this.options.sort) {
+        this.options.dataset.sort(function(a,b) {
+          return b.value - a.value
+        })
+      }
       var width = parseInt((chart.style('width')))
       var height = (width > 600) ? width / 1.5 : width
       var outerRadius = Math.min(width, height) / 2
