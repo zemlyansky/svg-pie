@@ -30,7 +30,8 @@
       transition: 700,
       initialTransition: false,
       percents: false,
-      hideGeneratedValues: false
+      showOtherTooltip: false,
+      otherSize: 1
     }
     // Merging
     this.options = Object.assign(defaultOptions, userOptions)
@@ -92,15 +93,16 @@
         delete this.options.values
         delete this.options.labels
       }
-      // Check if there's on only one value. Calculate a second one ~ percentage
-      if (this.options.dataset.length === 1) {
-        // var newSegmentData = {} 
-        // newSegmentData.value = 100 - this.options.dataset[0].value
-        // newSegmentData.label = (this.options.hideGeneratedValues) : '@hidden' ? ''
-        this.options.dataset.push({
-          value: 100 - this.options.dataset[0].value,
-          label: (this.options.hideGeneratedValues) ? '@hidden' : ''
-        })
+      if (typeof(this.options.percents) === 'boolean' && this.options.percents) {
+        var sum = this.options.dataset
+          .map(function(d){return d.value})
+          .reduce(function(a, val) {return a + val})
+          if (sum < 100) {
+            this.options.dataset.push({
+              value: 100 - sum,
+              label: 'Other'
+            })
+          }
       }
       // Sort
       if (typeof(this.options.sort) === 'boolean' && this.options.sort && this.options.dataset.length > 1) {
@@ -185,10 +187,10 @@
 
       var arc = d3.arc()
         .innerRadius(function(d, i) {
-          return (d.data.label === '@hidden') ? innerRadius + (outerRadius - innerRadius) / 3 : innerRadius;
+          return ((d.data.label === 'Other') && (innerRadius > 0)) ? innerRadius + (outerRadius - innerRadius) * (1 - that.options.otherSize) / 2 : innerRadius;
         })
         .outerRadius(function(d, i) {
-          return (d.data.label === '@hidden') ? outerRadius - (outerRadius - innerRadius) / 3 : outerRadius;
+          return (d.data.label === 'Other') ? outerRadius - (outerRadius - innerRadius) * (1 - that.options.otherSize) / 2 : outerRadius;
         })
 
       if (typeof(this.options.showLabels) === 'boolean' && this.options.showLabels){
@@ -233,12 +235,12 @@
 
       if (typeof(this.options.showTooltip) === 'boolean' && this.options.showTooltip) {
         path.on('mouseover', function(d) {
-          if (d.data.label !== '@hidden') {
+          if (d.data.label !== 'Other') {
           tooltip.style('display','block')
           tooltip.select('.tooltip-label')
                  .text(d.data.label)
           tooltip.select('.tooltip-value')
-                 .text(d.value)
+                 .text((that.options.percents) ? d.data.value + '%' : d.data.value)
           }
         })
 

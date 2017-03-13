@@ -46,7 +46,7 @@
     </div>
     <div class="container">
       <div id="chart3" class="chart">
-        <h2>30%</h2>
+        <h2>35%</h2>
       </div>
     </div>
     <script src="https://d3js.org/d3.v4.js"></script>
@@ -100,15 +100,16 @@
       }, 5000);
 
       var f = new SvgPie('#chart3', {
-        values: 30,
-        labels: ['Amount of work done, %'],
+        values: [30,5],
+        labels: ['New York','Los Angeles'],
         innerRadiusSize: .95,
         sort: false,
         showTooltip: true,
         showLabels: false,
         transition: 2000,
         initialTransition: true,
-        hideGeneratedValues: true,
+        percents: true,
+        otherSize: .2,
         colors: ['#5FBB97','#DDDDDD']
       })
     </script>
