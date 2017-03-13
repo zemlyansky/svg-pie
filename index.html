@@ -10,6 +10,10 @@
       h2 {
         font-size: 2.8vw;
       }
+      pre {
+        font-size: .9em;
+        color: #444;
+      }
       .container {
         width: 25%;
         float: left;
@@ -40,31 +44,70 @@
       <div id="chart1" class="chart">
         <i class="fa fa-user" aria-hidden="true"></i>
       </div>
+      <pre>
+        var ch1 = new SvgPie('#chart2', {
+          dataset: [
+            {label: 'Samanta', value: 65},
+            {label: 'Carl', value: 35},
+          ],
+          innerRadiusSize: .93,
+          sort: true,
+          showLabels: true
+        }
+      </pre>
     </div>
     <div class="container">
       <div id="chart2" class="chart"></div>
+      <pre>
+        var ch2 = new SvgPie('#chart2', {
+          values: [60,30,10],
+          labels: ['60%', '30%', '10%'],
+          innerRadiusSize: 0,
+          sort: false,
+          showTooltip: false,
+          showLabels: true,
+          colors: ['#5FBB97','#8DDCA4','#F6AA1C']
+        })
+      </pre>
     </div>
     <div class="container">
       <div id="chart3" class="chart">
         <h2>35%</h2>
       </div>
+      <pre>
+        var ch3 = new SvgPie('#chart3', {
+          values: [30,5],
+          labels: ['New York','Los Angeles'],
+          innerRadiusSize: .95,
+          sort: false,
+          showTooltip: true,
+          showLabels: false,
+          transition: 2000,
+          initialTransition: true,
+          percents: true,
+          otherSize: .2,
+          colors: ['#5FBB97','#FFBC00','#DDDDDD']
+        })
+      </pre>
     </div>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src="svg-pie.js" charset="utf-8"></script>
     <script type="text/javascript">
-      var d = new SvgPie('#chart1', {
+      var ch1 = new SvgPie('#chart1', {
         dataset: [
           {label: 'Samanta', value: 65},
           {label: 'Carl', value: 35},
         ],
         innerRadiusSize: .93,
+        transition: 2000,
+        initialTransition: true,
         sort: true,
         showLabels: true
         // colors: ['#FF0000','#0055EE']
       })
       setTimeout(function () {
-        d.options.values = d.options.labels = undefined
-        d.options.dataset = [
+        ch1.options.values = ch1.options.labels = undefined
+        ch1.options.dataset = [
           {label: 'Ben', value: 5},
           {label: 'Bill', value: 7},
           {label: 'Bill', value: 10},
@@ -73,33 +116,38 @@
           {label: 'Jane', value: 40},
           {label: 'Jane', value: 10},
         ]
-        d.update()
+        ch1.update()
       }, 5000);
       setTimeout(function () {
-        d.options.values = d.options.labels = undefined
-        d.options.dataset = [
-          {label: 'Samanta', value: 55},
-          {label: 'Carl', value: 25},
-          {label: 'John', value: 20},
+        ch1.options.values = ch1.options.labels = undefined
+        ch1.options.dataset = [
+          {label: 'Samanta', value: 65},
+          {label: 'Carl', value: 35},
         ]
-        d.update()
-      }, 15000);
-      var e = new SvgPie('#chart2', {
+        ch1.update()
+      }, 10000);
+      var ch2 = new SvgPie('#chart2', {
         values: [60,30,10],
         labels: ['60%', '30%', '10%'],
         innerRadiusSize: 0,
+        transition: 500,
         sort: false,
         showTooltip: false,
         showLabels: true,
         colors: ['#5FBB97','#8DDCA4','#F6AA1C']
       })
       setTimeout(function () {
-        e.options.values = [40,35,25],
-        e.options.labels = ['40%', '35%', '25%'],
-        e.update()
-      }, 5000);
+        ch2.options.values = [40,35,25],
+        ch2.options.labels = ['40%', '35%', '25%'],
+        ch2.update()
+      }, 7500);
+      setTimeout(function () {
+        ch2.options.values = [60,30,10],
+        ch2.options.labels = ['60%', '30%', '10%'],
+        ch2.update()
+      }, 15000);
 
-      var f = new SvgPie('#chart3', {
+      var ch3 = new SvgPie('#chart3', {
         values: [30,5],
         labels: ['New York','Los Angeles'],
         innerRadiusSize: .95,
@@ -110,7 +158,7 @@
         initialTransition: true,
         percents: true,
         otherSize: .2,
-        colors: ['#5FBB97','#DDDDDD']
+        colors: ['#5FBB97','#FFBC00','#DDDDDD']
       })
     </script>
   </body>
