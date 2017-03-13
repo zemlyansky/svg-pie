@@ -7,12 +7,15 @@
       body {
         font-family: sans-serif;
       }
+      h2 {
+        font-size: 2.8vw;
+      }
       .container {
         width: 25%;
         float: left;
       }
       .chart .fa {
-        font-size: 3.2em;
+        font-size: 4.6vw;
         color: #DDD;
       }
       .chart {
@@ -43,7 +46,7 @@
     </div>
     <div class="container">
       <div id="chart3" class="chart">
-        <h3>30%</h3>
+        <h2>30%</h2>
       </div>
     </div>
     <script src="https://d3js.org/d3.v4.js"></script>
@@ -54,7 +57,7 @@
           {label: 'Samanta', value: 65},
           {label: 'Carl', value: 35},
         ],
-        innerRadiusSize: .9,
+        innerRadiusSize: .93,
         sort: true,
         showLabels: true
         // colors: ['#FF0000','#0055EE']
@@ -99,7 +102,7 @@
       var f = new SvgPie('#chart3', {
         values: 30,
         labels: ['Amount of work done, %'],
-        innerRadiusSize: .95,
+        innerRadiusSize: .93,
         sort: false,
         showTooltip: true,
         showLabels: false,
