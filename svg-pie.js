@@ -208,6 +208,6 @@
 
     this.update()
 
-    d3.select(window).on('resize', this.render);
+    d3.select(window).on('resize.'+selector.replace(/[^a-z0-9_-]/gi,''), this.render);
   } // End of SvgPie constructor
 })) // End of factory
