@@ -3,7 +3,7 @@
 
 ##Installation  
 From NPM :
-    npm install svg-pie
+* `npm install svg-pie`
 
 Download:
 * [Minified version](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.min.js) (~5K)
@@ -142,7 +142,7 @@ For example:
 }
 ```
 
-To style inner content of the chart, feel free to add your own DOM elements:
+To style inner content of the chart add your own DOM elements:
 ```html
 <div id="chart">
   <div class="your-new-element">70%</div>

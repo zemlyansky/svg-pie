@@ -28,7 +28,9 @@
       sort: false,
       colors: ['#004A7C','#CDFC41','#A2A2A1'],
       transition: 700,
-      initialTransition: false
+      initialTransition: false,
+      percents: false,
+      hideGeneratedValues: false
     }
     // Merging
     this.options = Object.assign(defaultOptions, userOptions)
@@ -92,9 +94,12 @@
       }
       // Check if there's on only one value. Calculate a second one ~ percentage
       if (this.options.dataset.length === 1) {
+        // var newSegmentData = {} 
+        // newSegmentData.value = 100 - this.options.dataset[0].value
+        // newSegmentData.label = (this.options.hideGeneratedValues) : '@hidden' ? ''
         this.options.dataset.push({
           value: 100 - this.options.dataset[0].value,
-          label: ''
+          label: (this.options.hideGeneratedValues) ? '@hidden' : ''
         })
       }
       // Sort
@@ -179,8 +184,12 @@
       g.attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')')
 
       var arc = d3.arc()
-        .innerRadius(innerRadius)
-        .outerRadius(outerRadius)
+        .innerRadius(function(d, i) {
+          return (d.data.label === '@hidden') ? innerRadius + (outerRadius - innerRadius) / 3 : innerRadius;
+        })
+        .outerRadius(function(d, i) {
+          return (d.data.label === '@hidden') ? outerRadius - (outerRadius - innerRadius) / 3 : outerRadius;
+        })
 
       if (typeof(this.options.showLabels) === 'boolean' && this.options.showLabels){
         var r = outerRadius - 25
@@ -224,11 +233,13 @@
 
       if (typeof(this.options.showTooltip) === 'boolean' && this.options.showTooltip) {
         path.on('mouseover', function(d) {
+          if (d.data.label !== '@hidden') {
           tooltip.style('display','block')
           tooltip.select('.tooltip-label')
                  .text(d.data.label)
           tooltip.select('.tooltip-value')
                  .text(d.value)
+          }
         })
 
         chartElement.addEventListener('mousemove', function(event) {
