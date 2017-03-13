@@ -24,10 +24,12 @@
       showTooltip: true,
       showLabels: false,
       sort: false,
-      colors: ['#004A7C','#CDFC41','#A2A2A1']
+      colors: ['#004A7C','#CDFC41','#A2A2A1'],
+      transition: 700,
+      initialTransition: false
     }
     this.options = Object.assign(defaultOptions, userOptions)
-
+    console.log(this.options)
     var that = this
 
     // Select chart element
@@ -50,6 +52,7 @@
                          .sort(null)
 
     var path, chartLabels, color, colorCoeff
+    var transitioned = false
 
     //Appending tooltip element
     if (this.options.showTooltip) {
@@ -71,7 +74,7 @@
         this.options.values = [this.options.values]
       }
       // Convert labels and values arrays to the main array of objects
-      if (typeof(this.options.dataset) === 'undefined' && typeof(this.options.values) !== 'undefined') {
+      if (typeof(this.options.values) !== 'undefined') {
         this.options.dataset = []
         this.options.values.forEach(function (value, index) {
           that.options.dataset.push({
@@ -79,6 +82,8 @@
             label: (typeof(that.options.labels) !== 'undefined') ? that.options.labels[index] : ''
           })
         })
+        delete this.options.values
+        delete this.options.labels
       }
       // Check if there's on only one value. Calculate a second one ~ percentage
       if (this.options.dataset.length === 1) {
@@ -94,6 +99,26 @@
         })
       }
 
+      // Initial transition
+      if (this.options.dataset && !transitioned){
+        // Save current state
+        var _options = JSON.stringify(this.options)
+        // Disable sorting and labeling
+        this.options.sort = false
+        this.options.showLabels = false
+        // Make the last value 100%
+        this.options.dataset.forEach(function(d,i) {
+          d.value = (i == (that.options.dataset.length - 1) ) ? 100 : 0
+        })
+        // This tick: skip setTimeout, render 'fake' dataset
+        // Next tick: restore correct data, render with transition
+        setTimeout(function(){
+          transitioned = true
+          that.options = JSON.parse(_options)
+          that.update()
+        }, 0)
+      }
+
       // Update
       var segments = g.selectAll('.segment')
         .data(pieGenerator(this.options.dataset))
@@ -107,11 +132,7 @@
         .append('g')
         .attr('class', 'segment')
       enterSegments.append('path')
-      if (typeof(this.options.showLabels) === 'boolean' && this.options.showLabels){
-        enterSegments.append('text')
-          .style('font-size','.8em')
-          .attr('class','chart-label')
-      }
+      enterSegments.append('text')
 
       // Update and Enter
       var allSegments = enterSegments.merge(segments)
@@ -119,6 +140,8 @@
       if (typeof(this.options.showLabels) === 'boolean' && this.options.showLabels){
         chartLabels = allSegments.select('text')
           .text(function(d) { return d.data.label })
+          .style('font-size','.8em')
+          .attr('class','chart-label')
       }
 
       // Calculate color gradient according to the data length
@@ -131,6 +154,8 @@
         .range(this.options.colors.map(function(color){
           return d3.rgb(color)
         }))
+      path
+        .attr('fill', function(d, i) { return color(i) })
 
       // Render the chart
       this.render()
@@ -170,11 +195,30 @@
           })
       }
 
-      path
-        .attr('d', arc)
-        .attr('fill', function(d, i) { return color(i) })
+      // If transition is 'true', use default values
+      if (typeof(this.options.transition) === 'boolean' && this.options.transition){
+        this.options.transition = this.defaultOptions.transition
+      }
 
-      if (this.options.showTooltip) {
+      // Transition
+      if (typeof(this.options.transition) === 'number' && this.options.transition){
+        path
+          .transition()
+          .duration(this.options.transition)
+          .attrTween('d', function(d) {
+            var interpolate = d3.interpolate(this._current, d)
+            this._current = interpolate(0)
+            return function(t) {
+              console.log(interpolate(t))
+              return arc(interpolate(t))
+            }
+          })
+      } else {
+        path
+          .attr('d', arc)
+      }
+
+      if (typeof(this.options.showTooltip) === 'boolean' && this.options.showTooltip) {
         path.on('mouseover', function(d) {
           tooltip.style('display','block')
           tooltip.select('.tooltip-label')

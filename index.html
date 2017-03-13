@@ -7,8 +7,16 @@
       body {
         font-family: sans-serif;
       }
-      #chart {
-        margin-bottom: 30px;
+      .container {
+        width: 25%;
+        float: left;
+      }
+      .chart .fa {
+        font-size: 3.2em;
+        color: #DDD;
+      }
+      .chart {
+        margin: 30px;
       }
       .tooltip {
         font-size: .8em;
@@ -22,18 +30,30 @@
         font-weight: bold;
       }
     </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" media="screen" title="no title" charset="utf-8">
   </head>
   <body>
-    <div class="container" style="width: 25%">
-      <div id="chart">Content<br>inside</div>
-      <div id="chart2"></div>
+    <div class="container">
+      <div id="chart1" class="chart">
+        <i class="fa fa-user" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="container">
+      <div id="chart2" class="chart"></div>
+    </div>
+    <div class="container">
+      <div id="chart3" class="chart">
+        <h3>30%</h3>
+      </div>
     </div>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src="svg-pie.js" charset="utf-8"></script>
     <script type="text/javascript">
-      var d = new SvgPie('#chart', {
-        values: 30,
-        labels: ['Test1'],
+      var d = new SvgPie('#chart1', {
+        dataset: [
+          {label: 'Samanta', value: 65},
+          {label: 'Carl', value: 35},
+        ],
         innerRadiusSize: .9,
         sort: true,
         showLabels: true
@@ -69,6 +89,23 @@
         showTooltip: false,
         showLabels: true,
         colors: ['#5FBB97','#8DDCA4','#F6AA1C']
+      })
+      setTimeout(function () {
+        e.options.values = [40,35,25],
+        e.options.labels = ['40%', '35%', '25%'],
+        e.update()
+      }, 5000);
+
+      var f = new SvgPie('#chart3', {
+        values: 30,
+        labels: ['Amount of work done, %'],
+        innerRadiusSize: .95,
+        sort: false,
+        showTooltip: true,
+        showLabels: false,
+        transition: 2000,
+        initialTransition: true,
+        colors: ['#5FBB97','#DDDDDD']
       })
     </script>
   </body>
