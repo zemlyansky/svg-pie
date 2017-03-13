@@ -16,6 +16,8 @@
 }(this, function (d3) {
 
   return function SvgPie(selector, userOptions) {
+    // Forcing 'new'
+    if (!(this instanceof SvgPie)) return new SvgPie(selector, userOptions)
     // Default options
     // Merged later with user options
     var defaultOptions = {
@@ -28,11 +30,12 @@
       transition: 700,
       initialTransition: false
     }
+    // Merging
     this.options = Object.assign(defaultOptions, userOptions)
-    console.log(this.options)
+
     var that = this
 
-    // Select chart element
+    // Selecting elements
     var chartElement = document.querySelector(selector)
     var chart = d3.select(selector)
                   .style('position', 'relative')
@@ -52,9 +55,11 @@
                          .sort(null)
 
     var path, chartLabels, color, colorCoeff
+
+    // Is initial transition finished:
     var transitioned = false
 
-    //Appending tooltip element
+    // Appending tooltip element
     if (this.options.showTooltip) {
       var tooltip = chart
                      .append('div')
@@ -209,7 +214,6 @@
             var interpolate = d3.interpolate(this._current, d)
             this._current = interpolate(0)
             return function(t) {
-              console.log(interpolate(t))
               return arc(interpolate(t))
             }
           })
