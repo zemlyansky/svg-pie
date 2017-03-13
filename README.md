@@ -6,8 +6,8 @@ From NPM :
     npm install svg-pie
 
 Download:
-* [Minified version](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.min.js)
-* [Minified version with all needed D3 modules](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.bundle.min.js)
+* [Minified version](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.min.js) (~5K)
+* [Minified version with all needed D3 modules](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.bundle.min.js) (~100K)
 
 ##Features
 * tooltips
@@ -17,6 +17,7 @@ Download:
 * different input formats (number, array, array of objects)
 * sorting
 * responsive
+* animation
 
 ##Usage
 
@@ -111,6 +112,16 @@ new SvgPie('#chart', {
         <td><code>['#004A7C','#CDFC41','#A2A2A1']</code></td>
         <td>Array of strings. List of colors to interpolate </td>
     </tr>
+    <tr>
+        <td><strong>transition</strong></td>
+        <td><code>700</code></td>
+        <td>Number or Boolean. Transition duration. Accepts boolean <code>true</code> ~ default <code>700</code></td>
+    </tr>
+    <tr>
+        <td><strong>initialTransition</strong></td>
+        <td><code>false</code></td>
+        <td>Boolean. To show or not initial animation</td>
+    </tr>    
 </table>
 
 ###Style

@@ -100,7 +100,7 @@
       }
 
       // Initial transition
-      if (this.options.dataset && !transitioned){
+      if (this.options.initialTransition && !transitioned){
         // Save current state
         var _options = JSON.stringify(this.options)
         // Disable sorting and labeling
