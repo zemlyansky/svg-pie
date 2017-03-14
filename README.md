@@ -121,7 +121,22 @@ new SvgPie('#chart', {
         <td><strong>initialTransition</strong></td>
         <td><code>false</code></td>
         <td>Boolean. To show or not initial animation</td>
+    </tr>
+    <tr>
+        <td><strong>percents</strong></td>
+        <td><code>false</code></td>
+        <td>Boolean. Pass values as percents. Calculates the <code>Other</code> field if sum < 100%</td>
     </tr>    
+    <tr>
+        <td><strong>showOtherTooltip</strong></td>
+        <td><code>false</code></td>
+        <td>Boolean. To show or not a tooltip for the <code>Other</code> field</td>
+    </tr>
+    <tr>
+        <td><strong>otherSize</strong></td>
+        <td><code>1</code></td>
+        <td>Float [0,1]. Relative size of the <code>Other</code> segment. <code>1</code> - same size as other segments. <code>0</code> - hidden</td>
+    </tr>
 </table>
 
 ###Style
