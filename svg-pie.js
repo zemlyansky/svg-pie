@@ -1,3 +1,6 @@
+/**
+ * UMD
+ */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(['d3'], factory)
@@ -13,54 +16,85 @@
   } else {
     root.SvgPie = factory(root.d3)
   }
-}(this, function (d3) {
+}(this, factory))
+
+/**
+ * Factory
+ */
+function factory (d3) {
+  /**
+   * Default options
+   */
+  var defaultOptions = {
+    // The size of inner radius comparing to the outer radius
+    innerRadiusSize: 0.7,
+
+    // To show tooltips or not
+    showTooltip: true,
+
+    // To show labels or not
+    showLabels: false,
+
+    // To sort the data or not
+    sort: false,
+
+    // Color to interpolate
+    colors: ['#004A7C', '#CDFC41', '#A2A2A1'],
+
+    // Transition length
+    transition: 700,
+
+    // Initial transition
+    initialTransition: false,
+
+    // Force using percents
+    percents: false,
+
+    // To show a tooltip for the Other field on not
+    showOtherTooltip: false,
+
+    // The size of the Other segment
+    otherSize: 1
+  }
+
+  /**
+   * Factory returns the main constructor
+   */
   return function SvgPie (selector, userOptions) {
-    // Forcing 'new'
+    // Applying constructor when called without 'new'
     if (!(this instanceof SvgPie)) return new SvgPie(selector, userOptions)
-    // Default options
-    // Merged later with user options
-    var defaultOptions = {
-      innerRadiusSize: 0.7,
-      legend: true,
-      showTooltip: true,
-      showLabels: false,
-      sort: false,
-      colors: ['#004A7C', '#CDFC41', '#A2A2A1'],
-      transition: 700,
-      initialTransition: false,
-      percents: false,
-      showOtherTooltip: false,
-      otherSize: 1
-    }
-    // Merging
+
+    // Merging options
     this.options = Object.assign(defaultOptions, userOptions)
 
+    // For deep function
     var that = this
 
-    // Selecting elements
+    // Selections
     var chartElement = document.querySelector(selector)
     var chart = d3.select(selector)
+    var svg = d3.select(selector).append('svg')
+    var g = svg.append('g')
+
+    // Initital styling
+    chart
         .style('position', 'relative')
         .style('display', 'flex')
         .style('justify-content', 'center')
         .style('align-items', 'center')
-
-    var svg = d3.select(selector)
-        .append('svg')
+    svg
         .style('position', 'absolute')
         .style('top', '0')
         .style('left', '0')
 
-    var g = svg.append('g')
-
+    // D3 Pie init
     var pieGenerator = d3.pie()
         .value(function (d) { return d.value })
         .sort(null)
 
+    // Other variables
     var path, chartLabels, color, colorCoeff
-
-    // Is initial transition finished:
-    var transitioned = false
+    var transitioned = false // Is initial transition finished:
 
     // Appending tooltip element
     if (this.options.showTooltip) {
@@ -75,7 +109,9 @@
           .attr('class', 'tooltip-value')
     }
 
-    // UPDATE DATA AND CALL RENDER FUNCTION
+    /**
+     * Update when data is changed
+     */
     this.update = function () {
       // Check if there's a number instead of array
       if (typeof this.options.values === 'number') {
@@ -175,6 +211,10 @@
       this.render()
     }.bind(this)
 
+    /**
+     * Render updates
+     * Separate function for responsive design
+     */
     this.render = function () {
       var width = parseInt((chart.style('width')))
       var height = (width > 600) ? width / 1.5 : width
@@ -273,4 +313,4 @@
 
     d3.select(window).on('resize.' + selector.replace(/[^a-z0-9_-]/gi, ''), this.render)
   } // End of SvgPie constructor
-})) // End of factory
+}
