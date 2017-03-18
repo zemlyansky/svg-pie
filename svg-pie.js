@@ -60,20 +60,21 @@ function factory (d3) {
   /**
    * Factory returns the main constructor
    */
-  return function SvgPie (selector, userOptions) {
+  return function SvgPie (selector, params) {
     // Applying constructor when called without 'new'
-    if (!(this instanceof SvgPie)) return new SvgPie(selector, userOptions)
+    if (!(this instanceof SvgPie)) return new SvgPie(selector, params)
 
     // Merging options
-    this.options = Object.assign(defaultOptions, userOptions)
-
-    // For deep function
+    this.options = Object.assign(defaultOptions, params.options)
+    this.data = params.data
+    console.log(params)
+    console.log(this.options)
+    // For deep functions
     var that = this
 
     // Selections
-    var chartElement = document.querySelector(selector)
     var chart = d3.select(selector)
-    var svg = d3.select(selector).append('svg')
+    var svg = chart.append('svg')
     var g = svg.append('g')
 
     // Initital styling
@@ -86,11 +87,6 @@ function factory (d3) {
         .style('position', 'absolute')
         .style('top', '0')
         .style('left', '0')
-
-    // D3 Pie init
-    var pieGenerator = d3.pie()
-        .value(function (d) { return d.value })
-        .sort(null)
 
     // Other variables
     var path, chartLabels, color, colorCoeff
@@ -113,65 +109,106 @@ function factory (d3) {
      * Update when data is changed
      */
     this.update = function () {
-      // Check if there's a number instead of array
-      if (typeof this.options.values === 'number') {
-        this.options.values = [this.options.values]
+
+      /**
+       * Saving labels
+       */
+      var labels
+      if (typeof this.data.labels === 'string') {
+        labels = [this.data.labels] // New empty array
+      } else if (Array.isArray(this.data.labels)) {
+        labels = this.data.labels
       }
-      // Convert labels and values arrays to the main array of objects
-      if (typeof this.options.values !== 'undefined') {
-        this.options.dataset = []
-        this.options.values.forEach(function (value, index) {
-          that.options.dataset.push({
+
+      /**
+       * Saving data to the local array dataset
+       */
+      var dataset = []
+      // Dataset
+      if (Array.isArray(this.data.dataset) && typeof this.data.dataset[0] === 'object') {
+        this.data.dataset.forEach(function (obj) {
+          dataset.push(Object.assign({}, obj))
+        })
+
+      // Number
+      } else if (typeof this.data.values === 'number') {
+        dataset.push({
+          value: this.data.values,
+          label: (typeof labels[0] === 'string') ? labels[0] : ''
+        })
+
+      // Array
+      } else if (Array.isArray(this.data.values) && (this.data.values.length > 0)) {
+        this.data.values.forEach(function (value, index) {
+          dataset.push({
             value: value,
-            label: (typeof (that.options.labels) !== 'undefined') ? that.options.labels[index] : ''
+            label: (typeof labels[index] === 'string') ? labels[index] : ''
           })
         })
-        delete this.options.values
-        delete this.options.labels
+
+      // No data
+      } else {
+        throw new Error('No data provided')
       }
-      // Calculate percents
+
+      /**
+       * Calculate percents. If sum < 100% add new 'Other' field.
+       */
       if (typeof this.options.percents === 'boolean' && this.options.percents) {
-        var sum = this.options.dataset
+        var sum = dataset
             .map(function (d) { return d.value })
             .reduce(function (a, val) { return a + val })
         if (sum < 100) {
-          this.options.dataset.push({
+          dataset.push({
             value: 100 - sum,
             label: 'Other'
           })
         }
       }
 
-      // Sort
-      if (typeof this.options.sort === 'boolean' && this.options.sort && this.options.dataset.length > 1) {
-        this.options.dataset.sort(function (a, b) {
-          return b.value - a.value
-        })
-      }
+      console.log(dataset)
 
-      // Initial transition
-      if (this.options.initialTransition && !transitioned) {
-        // Save current state
-        var _options = JSON.stringify(this.options)
-        // Disable sorting and labeling
-        this.options.sort = false
-        this.options.showLabels = false
-        // Make the last value 100%
-        this.options.dataset.forEach(function (d, i) {
-          d.value = (i === (that.options.dataset.length - 1)) ? 100 : 0
-        })
-        // This tick: skip setTimeout, render 'fake' dataset
-        // Next tick: restore correct data, render with transition
-        setTimeout(function () {
-          transitioned = true
-          that.options = JSON.parse(_options)
-          that.update()
-        }, 0)
-      }
+      // Pie generator
+      var pieGenerator = d3.pie()
+          .value(function (d) { return d.value })
+          .sort(function (a, b) {
+            if (typeof that.options.sort === 'boolean' && that.options.sort && dataset.length > 1) {
+              return (((b.value - a.value) > 0) && (b.label !== 'Other'))
+            } else {
+              return null
+            }
+          })
+
+      // Sort
+      // if (typeof this.options.sort === 'boolean' && this.options.sort && this.options.dataset.length > 1) {
+      //   this.options.dataset.sort(function (a, b) {
+      //     return b.value - a.value
+      //   })
+      // }
+
+      // // Initial transition
+      // if (this.options.initialTransition && !transitioned) {
+      //   // Save current state
+      //   var _options = JSON.stringify(this.options)
+      //   // Disable sorting and labeling
+      //   this.options.sort = false
+      //   this.options.showLabels = false
+      //   // Make the last value 100%
+      //   this.options.dataset.forEach(function (d, i) {
+      //     d.value = (i === (that.options.dataset.length - 1)) ? 100 : 0
+      //   })
+      //   // This tick: skip setTimeout, render 'fake' dataset
+      //   // Next tick: restore correct data, render with transition
+      //   setTimeout(function () {
+      //     transitioned = true
+      //     that.options = JSON.parse(_options)
+      //     that.update()
+      //   }, 0)
+      // }
 
       // Update
       var segments = g.selectAll('.segment')
-        .data(pieGenerator(this.options.dataset))
+        .data(pieGenerator(dataset))
 
       // Exit
       segments.exit()
@@ -195,7 +232,7 @@ function factory (d3) {
       }
 
       // Calculate color gradient according to the data length
-      colorCoeff = (this.options.dataset.length - 1) / (this.options.colors.length - 1)
+      colorCoeff = (dataset.length - 1) / (this.options.colors.length - 1)
       color = d3.scaleLinear()
         .domain(this.options.colors.map(function (color, index) {
           return index * colorCoeff
@@ -286,7 +323,7 @@ function factory (d3) {
           }
         })
 
-        chartElement.addEventListener('mousemove', function (event) {
+        chart.node().addEventListener('mousemove', function (event) {
           var lY = event.layerY
           var lX = event.layerX
 
