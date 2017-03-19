@@ -88,6 +88,7 @@ function factory (d3) {
 
     // Other variables
     var path, chartLabels, color, colorCoeff
+    var transitioned = false // Initital transition finished?
     var dataset // Local dataset
 
     // Appending tooltip element
@@ -181,7 +182,9 @@ function factory (d3) {
       /**
        * Selections: Update, Exit, Enter
        */
-      var segments = g.selectAll('.segment').data(pieGenerator(dataset))
+      var segments = g.selectAll('.segment').data(pieGenerator(dataset), function (d) {
+        return d.data.label
+      })
 
       // Exit
       segments.exit()
@@ -288,18 +291,26 @@ function factory (d3) {
           .attrTween('d', function (d, i) {
             // Initital transition
             // If there was not transitions before and initialTransition is 'true' start from 0's
-            if (typeof this._current === 'undefined' && typeof that.options.initialTransition === 'boolean' && that.options.initialTransition) {
+            if (typeof this._current === 'undefined' && typeof that.options.initialTransition === 'boolean' && that.options.initialTransition && !transitioned) {
               this._current = {
                 index: i,
                 startAngle: 0
               }
               this._current.endAngle = (i === dataset.length - 1) ? Math.PI * 2 : 0
             }
+            if (typeof this._current === 'undefined' && transitioned) {
+              this._current = Object.assign({}, d)
+              this._current.endAngle = this._current.startAngle
+            }
             var interpolate = d3.interpolate(this._current, d)
             this._current = interpolate(0)
             return function (t) {
               return arc(interpolate(t))
             }
+          })
+          .on('end', function () {
+            if (!transitioned) transitioned = true
+            console.log('transitioned')
           })
       } else {
         path
