@@ -88,7 +88,7 @@ function factory (d3) {
 
     // Other variables
     var path, chartLabels, color, colorCoeff
-    var dataset = [] // Local dataset
+    var dataset // Local dataset
 
     // Appending tooltip element
     if (this.options.showTooltip) {
@@ -135,6 +135,7 @@ function factory (d3) {
       /**
        * Saving data to the local array dataset
        */
+      dataset = []
       // Dataset
       if (Array.isArray(this.data.dataset) && typeof this.data.dataset[0] === 'object') {
         this.data.dataset.forEach(function (obj) {
@@ -285,6 +286,7 @@ function factory (d3) {
           .transition()
           .duration(this.options.transition)
           .attrTween('d', function (d, i) {
+            // Initital transition
             // If there was not transitions before and initialTransition is 'true' start from 0's
             if (typeof this._current === 'undefined' && typeof that.options.initialTransition === 'boolean' && that.options.initialTransition) {
               this._current = {
