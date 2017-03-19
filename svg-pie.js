@@ -68,7 +68,9 @@ function factory (d3) {
     if (!(this instanceof SvgPie)) return new SvgPie(selector, params)
 
     // Merging options
-    this.options = Object.assign(defaultOptions, params.options)
+    // Merging to {} because now default options are outsidee of constructor
+    // They change will affect other charts
+    this.options = Object.assign({}, defaultOptions, params.options)
     this.data = params.data
     // For deep functions
     var that = this
@@ -231,7 +233,6 @@ function factory (d3) {
               else total.text(i(t).toFixed(2))
             }
           })
-
       }
 
       /**
@@ -264,7 +265,6 @@ function factory (d3) {
       var height = (width > 600) ? width / 1.5 : width
       var outerRadius = Math.min(width, height) / 2
       var innerRadius = outerRadius * this.options.innerRadiusSize
-
       // Updating chart elements with new width and height
       chart.style('height', height + 'px')
       svg.attr('width', width).attr('height', height)
@@ -384,7 +384,6 @@ function factory (d3) {
     }.bind(this) // End of update()
 
     this.update()
-
     d3.select(window).on('resize.' + selector.replace(/[^a-z0-9_-]/gi, ''), this.render)
   } // End of SvgPie constructor
 }
