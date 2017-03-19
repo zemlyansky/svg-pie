@@ -67,8 +67,6 @@ function factory (d3) {
     // Merging options
     this.options = Object.assign(defaultOptions, params.options)
     this.data = params.data
-    console.log(params)
-    console.log(this.options)
     // For deep functions
     var that = this
 
@@ -90,7 +88,7 @@ function factory (d3) {
 
     // Other variables
     var path, chartLabels, color, colorCoeff
-    var transitioned = false // Is initial transition finished:
+    var dataset = [] // Local dataset
 
     // Appending tooltip element
     if (this.options.showTooltip) {
@@ -106,10 +104,24 @@ function factory (d3) {
     }
 
     /**
+     * D3 pie generator
+     * @param {Object[]} dataset - Array of objects with values and labels
+     * @return {Object[]} angles - Array of objects with angles, values, and linked data object
+     */
+    var pieGenerator = d3.pie()
+        .value(function (d) { return d.value })
+        .sort(function (a, b) {
+          if (typeof that.options.sort === 'boolean' && that.options.sort) {
+            return (((b.value - a.value) > 0) && (b.label !== 'Other'))
+          } else {
+            return null
+          }
+        })
+
+    /**
      * Update when data is changed
      */
     this.update = function () {
-
       /**
        * Saving labels
        */
@@ -123,7 +135,6 @@ function factory (d3) {
       /**
        * Saving data to the local array dataset
        */
-      var dataset = []
       // Dataset
       if (Array.isArray(this.data.dataset) && typeof this.data.dataset[0] === 'object') {
         this.data.dataset.forEach(function (obj) {
@@ -166,64 +177,26 @@ function factory (d3) {
         }
       }
 
-      console.log(dataset)
-
-      // Pie generator
-      var pieGenerator = d3.pie()
-          .value(function (d) { return d.value })
-          .sort(function (a, b) {
-            if (typeof that.options.sort === 'boolean' && that.options.sort && dataset.length > 1) {
-              return (((b.value - a.value) > 0) && (b.label !== 'Other'))
-            } else {
-              return null
-            }
-          })
-
-      // Sort
-      // if (typeof this.options.sort === 'boolean' && this.options.sort && this.options.dataset.length > 1) {
-      //   this.options.dataset.sort(function (a, b) {
-      //     return b.value - a.value
-      //   })
-      // }
-
-      // // Initial transition
-      // if (this.options.initialTransition && !transitioned) {
-      //   // Save current state
-      //   var _options = JSON.stringify(this.options)
-      //   // Disable sorting and labeling
-      //   this.options.sort = false
-      //   this.options.showLabels = false
-      //   // Make the last value 100%
-      //   this.options.dataset.forEach(function (d, i) {
-      //     d.value = (i === (that.options.dataset.length - 1)) ? 100 : 0
-      //   })
-      //   // This tick: skip setTimeout, render 'fake' dataset
-      //   // Next tick: restore correct data, render with transition
-      //   setTimeout(function () {
-      //     transitioned = true
-      //     that.options = JSON.parse(_options)
-      //     that.update()
-      //   }, 0)
-      // }
-
-      // Update
-      var segments = g.selectAll('.segment')
-        .data(pieGenerator(dataset))
+      /**
+       * Selections: Update, Exit, Enter
+       */
+      var segments = g.selectAll('.segment').data(pieGenerator(dataset))
 
       // Exit
       segments.exit()
-        .remove()
+          .remove()
 
       // Enter
       var enterSegments = segments.enter()
         .append('g')
-        .attr('class', 'segment')
+          .attr('class', 'segment')
       enterSegments.append('path')
       enterSegments.append('text')
 
       // Update and Enter
       var allSegments = enterSegments.merge(segments)
       path = allSegments.select('path')
+      // Update labels
       if (typeof this.options.showLabels === 'boolean' && this.options.showLabels) {
         chartLabels = allSegments.select('text')
           .text(function (d) { return d.data.label })
@@ -231,18 +204,22 @@ function factory (d3) {
           .attr('class', 'chart-label')
       }
 
-      // Calculate color gradient according to the data length
+      /**
+       * Calculate color gradient according to the dataset length
+       */
       colorCoeff = (dataset.length - 1) / (this.options.colors.length - 1)
       color = d3.scaleLinear()
-        .domain(this.options.colors.map(function (color, index) {
-          return index * colorCoeff
-        }))
-        .interpolate(d3.interpolateHcl)
-        .range(this.options.colors.map(function (color) {
-          return d3.rgb(color)
-        }))
+          .domain(this.options.colors.map(function (color, index) {
+            return index * colorCoeff
+          }))
+          .interpolate(d3.interpolateHcl)
+          .range(this.options.colors.map(function (color) {
+            return d3.rgb(color)
+          }))
+
+      // Paint paths according to the new 'color' generator
       path
-        .attr('fill', function (d, i) { return color(i) })
+          .attr('fill', function (d, i) { return color(i) })
 
       // Render the chart
       this.render()
@@ -263,6 +240,11 @@ function factory (d3) {
       svg.attr('width', width).attr('height', height)
       g.attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')')
 
+      /**
+       * D3 arc generator
+       * @param {Object} params - Object with start/end angles and inner/outer radiuses. Params can be passed as constants with .innerRadius(0) etc
+       * @return {String} arc - Returns something like that: "M0,-100A100,100,0,0,1,100,0L0,0Z"
+       */
       var arc = d3.arc()
         .innerRadius(function (d, i) {
           return ((d.data.label === 'Other') && (innerRadius > 0)) ? innerRadius + (outerRadius - innerRadius) * (1 - that.options.otherSize) / 2 : innerRadius
@@ -271,6 +253,7 @@ function factory (d3) {
           return (d.data.label === 'Other') ? outerRadius - (outerRadius - innerRadius) * (1 - that.options.otherSize) / 2 : outerRadius
         })
 
+      // Display labels
       if (typeof this.options.showLabels === 'boolean' && this.options.showLabels) {
         var r = outerRadius - 25
         var labelArc = d3.arc()
@@ -290,17 +273,26 @@ function factory (d3) {
           })
       }
 
-      // If transition is 'true', use default values
+      // If a transition valuefrom user options is Boolean & 'true', not a number, use default number value
       if (typeof this.options.transition === 'boolean' && this.options.transition) {
         this.options.transition = this.defaultOptions.transition
       }
 
       // Transition
-      if (typeof this.options.transition === 'number' && this.options.transition) {
+      if (typeof this.options.transition === 'number' && (this.options.transition > 0)) {
+        console.log(dataset)
         path
           .transition()
           .duration(this.options.transition)
-          .attrTween('d', function (d) {
+          .attrTween('d', function (d, i) {
+            // If there was not transitions before and initialTransition is 'true' start from 0's
+            if (typeof this._current === 'undefined' && typeof that.options.initialTransition === 'boolean' && that.options.initialTransition) {
+              this._current = {
+                index: i,
+                startAngle: 0
+              }
+              this._current.endAngle = (i === dataset.length - 1) ? Math.PI * 2 : 0
+            }
             var interpolate = d3.interpolate(this._current, d)
             this._current = interpolate(0)
             return function (t) {
@@ -312,6 +304,7 @@ function factory (d3) {
           .attr('d', arc)
       }
 
+      // Show tooltips
       if (typeof this.options.showTooltip === 'boolean' && this.options.showTooltip) {
         path.on('mouseover', function (d) {
           if (d.data.label !== 'Other') {
