@@ -35,6 +35,9 @@ function factory (d3) {
     // To show labels or not
     showLabels: false,
 
+    // To show or not total value
+    showTotal: false,
+
     // To sort the data or not
     sort: false,
 
@@ -74,11 +77,18 @@ function factory (d3) {
     var chart = d3.select(selector)
     var svg = chart.append('svg')
     var g = svg.append('g')
+    var total
+
+    if (typeof this.options.showTotal === 'boolean' && this.options.showTotal) {
+      total = chart.append('p').attr('class', 'total')
+      total.node()._current = 0 // initial value
+    }
 
     // Initital styling
     chart
         .style('position', 'relative')
         .style('display', 'flex')
+        .style('flex-direction', 'column')
         .style('justify-content', 'center')
         .style('align-items', 'center')
     svg
@@ -92,7 +102,7 @@ function factory (d3) {
     var dataset // Local dataset
 
     // Appending tooltip element
-    if (this.options.showTooltip) {
+    if (typeof this.options.showTooltip === 'boolean' && this.options.showTooltip) {
       var tooltip = chart.append('div')
           .attr('class', 'tooltip')
           .style('position', 'absolute')
@@ -167,16 +177,15 @@ function factory (d3) {
       /**
        * Calculate percents. If sum < 100% add new 'Other' field.
        */
-      if (typeof this.options.percents === 'boolean' && this.options.percents) {
-        var sum = dataset
-            .map(function (d) { return d.value })
-            .reduce(function (a, val) { return a + val })
-        if (sum < 100) {
-          dataset.push({
-            value: 100 - sum,
-            label: 'Other'
-          })
-        }
+      var sum = dataset
+          .map(function (d) { return d.value })
+          .reduce(function (a, val) { return a + val })
+
+      if (typeof this.options.percents === 'boolean' && this.options.percents && sum < 100) {
+        dataset.push({
+          value: 100 - sum,
+          label: 'Other'
+        })
       }
 
       /**
@@ -200,12 +209,29 @@ function factory (d3) {
       // Update and Enter
       var allSegments = enterSegments.merge(segments)
       path = allSegments.select('path')
+
       // Update labels
       if (typeof this.options.showLabels === 'boolean' && this.options.showLabels) {
         chartLabels = allSegments.select('text')
           .text(function (d) { return d.data.label })
           .style('font-size', '.8em')
           .attr('class', 'chart-label')
+      }
+
+      // Update total value
+      if (typeof this.options.showTotal === 'boolean' && this.options.showTotal) {
+        total.data([sum])
+          .transition()
+          .duration(this.options.transition)
+          .tween('text', function (d) {
+            var i = d3.interpolate(this._current, d)
+            this._current = d
+            return function (t) {
+              if (that.options.percents) total.text(i(t).toFixed(0) + '%')
+              else total.text(i(t).toFixed(2))
+            }
+          })
+
       }
 
       /**
@@ -282,15 +308,18 @@ function factory (d3) {
         this.options.transition = this.defaultOptions.transition
       }
 
-      // Transition
+      /**
+       * Transitions
+       * 1. Detecting initial transitions when all values are 0, other is 100%
+       * 2. Detecting new elements
+       */
       if (typeof this.options.transition === 'number' && (this.options.transition > 0)) {
-        console.log(dataset)
         path
           .transition()
           .duration(this.options.transition)
-          .attrTween('d', function (d, i) {
+          .attrTween('d', function (d, i, nodes) {
             // Initital transition
-            // If there was not transitions before and initialTransition is 'true' start from 0's
+            // If there was no transitions before and initialTransition is 'true' start from 0's
             if (typeof this._current === 'undefined' && typeof that.options.initialTransition === 'boolean' && that.options.initialTransition && !transitioned) {
               this._current = {
                 index: i,
@@ -298,9 +327,12 @@ function factory (d3) {
               }
               this._current.endAngle = (i === dataset.length - 1) ? Math.PI * 2 : 0
             }
+            // New values added
             if (typeof this._current === 'undefined' && transitioned) {
               this._current = Object.assign({}, d)
-              this._current.endAngle = this._current.startAngle
+              if (i) {
+                this._current.endAngle = this._current.startAngle = nodes[i - 1]._current.endAngle
+              }
             }
             var interpolate = d3.interpolate(this._current, d)
             this._current = interpolate(0)
@@ -310,7 +342,6 @@ function factory (d3) {
           })
           .on('end', function () {
             if (!transitioned) transitioned = true
-            console.log('transitioned')
           })
       } else {
         path
