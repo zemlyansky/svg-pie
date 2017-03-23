@@ -46,7 +46,7 @@ Use `svg-pie.min.js` together with D3:
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="svg-pie.min.js" charset="utf-8"></script>
 <script type="text/javascript">
-  var chart = new SvgPie('#chart', options)
+  var chart = new SvgPie('#chart', {data: {...}, options: {...}})
 </script>
 ```
 
