@@ -11,11 +11,11 @@
         font-size: 2.8vw;
       }
       pre {
-        font-size: .9em;
+        font-size: .8em;
         color: #444;
       }
       .container {
-        width: 25%;
+        width: 24%;
         float: left;
       }
       .chart .fa {
@@ -25,16 +25,28 @@
       .chart {
         margin: 30px;
       }
-      .tooltip {
+      .svg-total {
+        font-size: 1.4em;
+      }
+      .svg-tooltip {
         font-size: .8em;
         background: white;
         box-shadow: 0 0 10px rgba(0,0,0,.2);
         padding: 10px;
         opacity: .8;
       }
-      .tooltip-label {
+      .svg-tooltip-label {
         font-size: 1.2em;
         font-weight: bold;
+      }
+      #chart2 .svg-chart-label {
+        fill: white;
+      }
+      #chart3 .svg-total, #chart4 .svg-total {
+        margin: 0;
+      }
+      #chart3 .total-text, #chart4 .total-text {
+        margin-top: 0;
       }
     </style>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" media="screen" title="no title" charset="utf-8">
@@ -45,120 +57,172 @@
         <i class="fa fa-user" aria-hidden="true"></i>
       </div>
       <pre>
-        var ch1 = new SvgPie('#chart2', {
+      var ch1 = new SvgPie('#chart1', {
+        data: {
           dataset: [
             {label: 'Samanta', value: 65},
             {label: 'Carl', value: 35},
-          ],
-          innerRadiusSize: .93,
+          ]
+        },
+        options: {
+          innerRadiusSize: .7,
+          transition: 2000,
+          initialTransition: true,
           sort: true,
-          showLabels: true
+          colors: ['#44DDDD','#EEEEEE']
         }
+      })
       </pre>
     </div>
     <div class="container">
       <div id="chart2" class="chart"></div>
       <pre>
-        var ch2 = new SvgPie('#chart2', {
+      var ch2 = new SvgPie('#chart2', {
+        data: {
           values: [60,30,10],
-          labels: ['60%', '30%', '10%'],
+          labels: ['60%', '30%', '10%']
+        },
+        options: {
           innerRadiusSize: 0,
+          transition: 500,
           sort: false,
           showTooltip: false,
           showLabels: true,
-          colors: ['#5FBB97','#8DDCA4','#F6AA1C']
-        })
+          colors: ['#3F9272','#8DDCA4']
+        }
+      })
       </pre>
     </div>
     <div class="container">
       <div id="chart3" class="chart">
-        <h2>35%</h2>
+        <p class="total-text">Total values:</p>
       </div>
       <pre>
-        var ch3 = new SvgPie('#chart3', {
-          values: [30,5],
-          labels: ['New York','Los Angeles'],
+      var ch3 = new SvgPie('#chart3', {
+        data: {
+          labels: ['v1','v2','v3'],
+          values: [15,10,30]
+        },
+        options: {
           innerRadiusSize: .95,
           sort: false,
           showTooltip: true,
           showLabels: false,
+          showTotal: true,
           transition: 2000,
           initialTransition: true,
           percents: true,
           otherSize: .2,
-          colors: ['#5FBB97','#FFBC00','#DDDDDD']
-        })
+          colors: ['#5FBB97','#FFBC00','#FF6600','#DDDDDD']
+        }
+      })
+      </pre>
+    </div>
+    <div class="container">
+      <div id="chart4" class="chart">
+        <p class="total-text">Total values:</p>
+      </div>
+      <pre>
+      var ch4 = new SvgPie('#chart4', {
+        data: {
+          labels: ['Value 1','Value 2', ... ,'Value 12'],
+          values: [1,1, ... ,2.1]
+        },
+        options: {
+          innerRadiusSize: .95,
+          sort: false,
+          showTooltip: true,
+          showLabels: false,
+          showTotal: true,
+          transition: 2000,
+          initialTransition: false,
+          percents: false,
+          group: true,
+          colors: ['#FF6600','#5FBB97', ... ,'#DDDDDD']
+        }
+      })
       </pre>
     </div>
     <script src="https://d3js.org/d3.v4.js"></script>
-    <script src="svg-pie.js" charset="utf-8"></script>
+    <script src="svg-pie.min.js" charset="utf-8"></script>
     <script type="text/javascript">
+      // Chart #1
       var ch1 = new SvgPie('#chart1', {
-        dataset: [
-          {label: 'Samanta', value: 65},
-          {label: 'Carl', value: 35},
-        ],
-        innerRadiusSize: .93,
-        transition: 2000,
-        initialTransition: true,
-        sort: true,
-        showLabels: true
-        // colors: ['#FF0000','#0055EE']
+        data: {
+          dataset: [
+            {label: 'Android', value: 55},
+            {label: 'iOS', value: 45},
+          ]
+        },
+        options: {
+          innerRadiusSize: .7,
+          transition: 2000,
+          initialTransition: true,
+          sort: true,
+          colors: ['#44DDDD','#EEEEEE']
+        }
       })
-      setTimeout(function () {
-        ch1.options.values = ch1.options.labels = undefined
-        ch1.options.dataset = [
-          {label: 'Ben', value: 5},
-          {label: 'Bill', value: 7},
-          {label: 'Bill', value: 10},
-          {label: 'Bill', value: 20},
-          {label: 'Jane', value: 8},
-          {label: 'Jane', value: 40},
-          {label: 'Jane', value: 10},
-        ]
-        ch1.update()
-      }, 5000);
-      setTimeout(function () {
-        ch1.options.values = ch1.options.labels = undefined
-        ch1.options.dataset = [
-          {label: 'Samanta', value: 65},
-          {label: 'Carl', value: 35},
-        ]
-        ch1.update()
-      }, 10000);
-      var ch2 = new SvgPie('#chart2', {
-        values: [60,30,10],
-        labels: ['60%', '30%', '10%'],
-        innerRadiusSize: 0,
-        transition: 500,
-        sort: false,
-        showTooltip: false,
-        showLabels: true,
-        colors: ['#5FBB97','#8DDCA4','#F6AA1C']
-      })
-      setTimeout(function () {
-        ch2.options.values = [40,35,25],
-        ch2.options.labels = ['40%', '35%', '25%'],
-        ch2.update()
-      }, 7500);
-      setTimeout(function () {
-        ch2.options.values = [60,30,10],
-        ch2.options.labels = ['60%', '30%', '10%'],
-        ch2.update()
-      }, 15000);
 
+      // Chart #2
+      var ch2 = new SvgPie('#chart2', {
+        data: {
+          values: [60,30,10],
+          labels: ['60%', '30%', '10%']
+        },
+        options: {
+          innerRadiusSize: 0,
+          transition: 500,
+          sort: false,
+          showTooltip: false,
+          showLabels: true,
+          colors: ['#3F9272','#8DDCA4']
+        }
+      })
+      
+      // Chart #3
       var ch3 = new SvgPie('#chart3', {
-        values: [30,5],
-        labels: ['New York','Los Angeles'],
-        innerRadiusSize: .95,
-        sort: false,
-        showTooltip: true,
-        showLabels: false,
-        transition: 2000,
-        initialTransition: true,
-        percents: true,
-        otherSize: .2,
-        colors: ['#5FBB97','#FFBC00','#DDDDDD']
+        data: {
+          labels: ['v1','v2','v3'],
+          values: [15,10,30]
+        },
+        options: {
+          innerRadiusSize: .95,
+          sort: false,
+          showTooltip: true,
+          showLabels: false,
+          showTotal: true,
+          transition: 2000,
+          initialTransition: true,
+          percents: true,
+          otherSize: .2,
+          colors: ['#5FBB97','#FFBC00','#FF6600','#DDDDDD']
+        }
+      })
+      setInterval(function () {
+        ch3.data.values.forEach(function(val, i) {
+          ch3.data.values[i] = Math.floor(Math.random()*30)
+        })
+        ch3.update()
+      }, 3000)
+
+      // Chart #4
+      var ch4 = new SvgPie('#chart4', {
+        data: {
+          labels: ['Value 1','Value 2','Value 3','Value 4','Value 5','Value 6','Value 7','Value 8','Value 9','Value 10','Value 11','Value 12'],
+          values: [1,1,4.4,80,11,34,114,18,3,3,1.5,2.1]
+        },
+        options: {
+          innerRadiusSize: .95,
+          sort: false,
+          showTooltip: true,
+          showLabels: false,
+          showTotal: true,
+          transition: 2000,
+          initialTransition: false,
+          percents: false,
+          group: true,
+          colors: ['#FF6600','#5FBB97','#8DDCA4','#44DDDD','#44AAFF','#DDDDDD']
+        }
       })
     </script>
   </body>

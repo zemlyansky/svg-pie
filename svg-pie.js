@@ -61,7 +61,10 @@ function factory (d3) {
     showOtherTooltip: false,
 
     // The size of the Other segment
-    otherSize: 1
+    otherSize: 1,
+
+    // Group small values
+    group: false
   }
 
   /**
@@ -149,8 +152,8 @@ function factory (d3) {
         .value(function (d) { return d.value })
         .sort(function (a, b) {
           if (typeof that.options.sort === 'boolean' && that.options.sort) {
-            // return (((b.value - a.value) > 0) && (b.label !== 'Other'))
-            return d3.descending(a.value, b.value)
+            // return d3.descending(a.value, b.value)
+            return (((b.value - a.value) > 0) && (b.label !== 'Other') ? 1 : -1)
           } else {
             return null
           }
@@ -221,7 +224,7 @@ function factory (d3) {
 
       // Group small values
       var filterPercent = 3
-      if (true) {
+      if (typeof this.options.group === 'boolean' && this.options.group && dataset.length > 2) {
         var filterValue = (sum * filterPercent / 100)
         var groupValue = dataset
             .filter(function (d) { return (d.value < filterValue) })
