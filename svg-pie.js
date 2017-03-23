@@ -218,7 +218,6 @@ function factory (d3) {
           value: 100 - sum,
           label: 'Other'
         })
-        sum = 100
       }
 
 
