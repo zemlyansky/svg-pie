@@ -19,11 +19,15 @@
 }(this, factory))
 
 /**
- * Factory
+ * A factory that returns SvgPie class
+ * @param {Object} d3 - Global when loaded with <script>. CommonJS loads sub-modules and bundles them into one d3 object
+ * @returns {Function} - SvgPie class
  */
 function factory (d3) {
   /**
-   * Default options
+   * Default chart options. Will be merged with user options
+   * @const {Object}
+   * @default
    */
   var defaultOptions = {
     // The size of inner radius comparing to the outer radius
@@ -61,28 +65,38 @@ function factory (d3) {
   }
 
   /**
-   * Factory returns the main constructor
+   * Chart class.
+   * It will be returned by the factory function.
+   * Then exported with the module.exports or added to the global namespace with <script>
+   * @param {string} selector - a DOM selector ('.foo', '#bar', 'div' etc...)
+   * @param {Object} params
+   * @param {Object} params.data - the data object
+   * @param {number|Array.<number>} params.data.values
+   * @param {string|Array.<string>} params.data.labels
+   * @param {Array.<Object>} params.data.dataset - array of object pairs {value:1, label:''}
+   * @param {Object} params.options
+   * @returns {Object} - unique chart object 
    */
-  return function SvgPie (selector, params) {
+  function SvgPie (selector, params) {
     // Applying constructor when called without 'new'
     if (!(this instanceof SvgPie)) return new SvgPie(selector, params)
 
     // Merging options
-    // Merging to {} because now default options are outsidee of constructor
-    // They change will affect other charts
+    // Merging to {} because default options located outside of the constructor
     this.options = Object.assign({}, defaultOptions, params.options)
-    this.data = params.data
+    this.data = Object.assign({}, params.data)
+
     // For deep functions
     var that = this
 
-    // Selections
+    // Main Selections
     var chart = d3.select(selector)
     var svg = chart.append('svg')
     var g = svg.append('g')
     var total
 
     if (typeof this.options.showTotal === 'boolean' && this.options.showTotal) {
-      total = chart.append('p').attr('class', 'total')
+      total = chart.append('p').attr('class', 'svg-total')
       total.node()._current = 0 // initial value
     }
 
@@ -100,26 +114,36 @@ function factory (d3) {
 
     // Other variables
     var path, chartLabels, color, colorCoeff
-    var transitioned = false // Initital transition finished?
-    var dataset // Local dataset
+
+    /**
+     * Initital transition finished?
+     * @type {boolean}
+     */
+    var transitioned = false
+
+    /**
+     * Local copy of all the data
+     * @type {Array.<Object>}
+     */
+    var dataset
 
     // Appending tooltip element
     if (typeof this.options.showTooltip === 'boolean' && this.options.showTooltip) {
       var tooltip = chart.append('div')
-          .attr('class', 'tooltip')
+          .attr('class', 'svg-tooltip')
           .style('position', 'absolute')
           .style('display', 'none')
           .style('pointer-events', 'none')
       tooltip.append('div')
-          .attr('class', 'tooltip-label')
+          .attr('class', 'svg-tooltip-label')
       tooltip.append('div')
-          .attr('class', 'tooltip-value')
+          .attr('class', 'svg-tooltip-value')
     }
 
     /**
      * D3 pie generator
-     * @param {Object[]} dataset - Array of objects with values and labels
-     * @return {Object[]} angles - Array of objects with angles, values, and linked data object
+     * @param {Array.<Object>} dataset - Array of objects with values and labels
+     * @return {Array.<Object>} Array of objects with angles, values, and linked data object
      */
     var pieGenerator = d3.pie()
         .value(function (d) { return d.value })
@@ -136,33 +160,33 @@ function factory (d3) {
      */
     this.update = function () {
       /**
-       * Saving labels
+       * Local copy of labels. Converted to an array if it was a string.
+       * @type {Array} labels
        */
       var labels
       if (typeof this.data.labels === 'string') {
-        labels = [this.data.labels] // New empty array
+        labels = [this.data.labels]
       } else if (Array.isArray(this.data.labels)) {
         labels = this.data.labels
       }
 
-      /**
-       * Saving data to the local array dataset
-       */
+      // Reset the local copy of data
       dataset = []
-      // Dataset
+
+      // if Dataset
       if (Array.isArray(this.data.dataset) && typeof this.data.dataset[0] === 'object') {
         this.data.dataset.forEach(function (obj) {
           dataset.push(Object.assign({}, obj))
         })
 
-      // Number
+      // if Number
       } else if (typeof this.data.values === 'number') {
         dataset.push({
           value: this.data.values,
           label: (typeof labels[0] === 'string') ? labels[0] : ''
         })
 
-      // Array
+      // if Array
       } else if (Array.isArray(this.data.values) && (this.data.values.length > 0)) {
         this.data.values.forEach(function (value, index) {
           dataset.push({
@@ -171,18 +195,20 @@ function factory (d3) {
           })
         })
 
-      // No data
+      // no data
       } else {
         throw new Error('No data provided')
       }
 
       /**
-       * Calculate percents. If sum < 100% add new 'Other' field.
+       * Sum of all values from the dataset
+       * @type {number}
        */
       var sum = dataset
           .map(function (d) { return d.value })
           .reduce(function (a, val) { return a + val })
 
+      // Calculate percents. If sum < 100% add new 'Other' field.
       if (typeof this.options.percents === 'boolean' && this.options.percents && sum < 100) {
         dataset.push({
           value: 100 - sum,
@@ -191,9 +217,11 @@ function factory (d3) {
       }
 
       /**
-       * Selections: Update, Exit, Enter
+       * D3 'g .segment' selection with data attached.
+       * Inside each segment - <path> and <text>
+       * @type {Selection}
        */
-      var segments = g.selectAll('.segment').data(pieGenerator(dataset), function (d) {
+      var segments = g.selectAll('.svg-segment').data(pieGenerator(dataset), function (d) {
         return d.data.label
       })
 
@@ -201,14 +229,20 @@ function factory (d3) {
       segments.exit()
           .remove()
 
-      // Enter
+      /**
+       * Enter selection
+       * @type {Selection}
+       */
       var enterSegments = segments.enter()
         .append('g')
-          .attr('class', 'segment')
+          .attr('class', 'svg-segment')
       enterSegments.append('path')
       enterSegments.append('text')
 
-      // Update and Enter
+      /**
+       * Update & Enter selection
+       * @type {Selection}
+       */
       var allSegments = enterSegments.merge(segments)
       path = allSegments.select('path')
 
@@ -217,7 +251,7 @@ function factory (d3) {
         chartLabels = allSegments.select('text')
           .text(function (d) { return d.data.label })
           .style('font-size', '.8em')
-          .attr('class', 'chart-label')
+          .attr('class', 'svg-chart-label')
       }
 
       // Update total value
@@ -235,9 +269,7 @@ function factory (d3) {
           })
       }
 
-      /**
-       * Calculate color gradient according to the dataset length
-       */
+      // Calculate color gradient according to the dataset length
       colorCoeff = (dataset.length - 1) / (this.options.colors.length - 1)
       color = d3.scaleLinear()
           .domain(this.options.colors.map(function (color, index) {
@@ -257,14 +289,16 @@ function factory (d3) {
     }.bind(this)
 
     /**
-     * Render updates
-     * Separate function for responsive design
+     * Render updates.
+     * It's a separate function to be able (re)rendering charts without touching data.
+     * Helps make charts responsive.
      */
     this.render = function () {
       var width = parseInt((chart.style('width')))
       var height = (width > 600) ? width / 1.5 : width
       var outerRadius = Math.min(width, height) / 2
       var innerRadius = outerRadius * this.options.innerRadiusSize
+
       // Updating chart elements with new width and height
       chart.style('height', height + 'px')
       svg.attr('width', width).attr('height', height)
@@ -273,7 +307,7 @@ function factory (d3) {
       /**
        * D3 arc generator
        * @param {Object} params - Object with start/end angles and inner/outer radiuses. Params can be passed as constants with .innerRadius(0) etc
-       * @return {String} arc - Returns something like that: "M0,-100A100,100,0,0,1,100,0L0,0Z"
+       * @return {String} Returns something like that: "M0,-100A100,100,0,0,1,100,0L0,0Z"
        */
       var arc = d3.arc()
         .innerRadius(function (d, i) {
@@ -309,7 +343,7 @@ function factory (d3) {
       }
 
       /**
-       * Transitions
+       * Transitions:
        * 1. Detecting initial transitions when all values are 0, other is 100%
        * 2. Detecting new elements
        */
@@ -319,7 +353,7 @@ function factory (d3) {
           .duration(this.options.transition)
           .attrTween('d', function (d, i, nodes) {
             // Initital transition
-            // If there was no transitions before and initialTransition is 'true' start from 0's
+            // If there were no transitions before and options.initialTransition is 'true' start from 0's
             if (typeof this._current === 'undefined' && typeof that.options.initialTransition === 'boolean' && that.options.initialTransition && !transitioned) {
               this._current = {
                 index: i,
@@ -327,20 +361,24 @@ function factory (d3) {
               }
               this._current.endAngle = (i === dataset.length - 1) ? Math.PI * 2 : 0
             }
-            // New values added
+            // New values added. Transitioned was already changed before so we know it's smth new.
             if (typeof this._current === 'undefined' && transitioned) {
               this._current = Object.assign({}, d)
+              // Here we actually set start & end angles of a new element equal to
+              // angles of the previous element (if it's not first) 
               if (i) {
                 this._current.endAngle = this._current.startAngle = nodes[i - 1]._current.endAngle
               }
             }
             var interpolate = d3.interpolate(this._current, d)
+            // Save current (0 time) 'd' value to the _current param of DOM element
             this._current = interpolate(0)
             return function (t) {
               return arc(interpolate(t))
             }
           })
           .on('end', function () {
+            // Indicate that at least one transition was finished
             if (!transitioned) transitioned = true
           })
       } else {
@@ -353,9 +391,9 @@ function factory (d3) {
         path.on('mouseover', function (d) {
           if (d.data.label !== 'Other') {
             tooltip.style('display', 'block')
-            tooltip.select('.tooltip-label')
+            tooltip.select('.svg-tooltip-label')
                    .text(d.data.label)
-            tooltip.select('.tooltip-value')
+            tooltip.select('.svg-tooltip-value')
                    .text((that.options.percents) ? d.data.value + '%' : d.data.value)
           }
         })
@@ -386,4 +424,6 @@ function factory (d3) {
     this.update()
     d3.select(window).on('resize.' + selector.replace(/[^a-z0-9_-]/gi, ''), this.render)
   } // End of SvgPie constructor
+
+  return SvgPie
 }
