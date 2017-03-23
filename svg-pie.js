@@ -149,7 +149,8 @@ function factory (d3) {
         .value(function (d) { return d.value })
         .sort(function (a, b) {
           if (typeof that.options.sort === 'boolean' && that.options.sort) {
-            return (((b.value - a.value) > 0) && (b.label !== 'Other'))
+            // return (((b.value - a.value) > 0) && (b.label !== 'Other'))
+            return d3.descending(a.value, b.value)
           } else {
             return null
           }
@@ -214,6 +215,34 @@ function factory (d3) {
           value: 100 - sum,
           label: 'Other'
         })
+        sum = 100
+      }
+
+
+      // Group small values
+      var filterPercent = 3
+      if (true) {
+        var filterValue = (sum * filterPercent / 100)
+        var groupValue = dataset
+            .filter(function (d) { return (d.value < filterValue) })
+            .reduce(function (a, d) { return a + d.value}, 0)
+        dataset = dataset
+            .filter(function (d) { return (d.value >= filterValue) })
+        if (groupValue) {
+          var addedToOther = false
+          dataset.forEach(function (d) {
+            if (d.label === 'Other') {
+              d.value += groupValue
+              addedToOther = true
+            }
+          })
+          if (!addedToOther) {
+            dataset.push({
+              value: groupValue,
+              label: 'Other'
+            })
+          }
+        }
       }
 
       /**
@@ -258,7 +287,7 @@ function factory (d3) {
       if (typeof this.options.showTotal === 'boolean' && this.options.showTotal) {
         total.data([sum])
           .transition()
-          .duration(this.options.transition)
+          .duration((this.options.transition && this.options.initialTransition) ? this.options.transition : 0)
           .tween('text', function (d) {
             var i = d3.interpolate(this._current, d)
             this._current = d
@@ -389,7 +418,7 @@ function factory (d3) {
       // Show tooltips
       if (typeof this.options.showTooltip === 'boolean' && this.options.showTooltip) {
         path.on('mouseover', function (d) {
-          if (d.data.label !== 'Other') {
+          if (d.data.label !== 'Other' || that.options.otherSize === 1) {
             tooltip.style('display', 'block')
             tooltip.select('.svg-tooltip-label')
                    .text(d.data.label)
