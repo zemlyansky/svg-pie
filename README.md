@@ -1,7 +1,9 @@
-#svg-pie
+svg-pie
+=======
 `svg-pie` is a free, open source module for creating responsive vector pie charts. Based on D3 v.4
 
-##Installation  
+Installation  
+------------
 From NPM :
 * `npm install svg-pie`
 
@@ -9,7 +11,11 @@ Download:
 * [Minified version](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.min.js) (~5K)
 * [Minified version with all needed D3 modules](https://raw.githubusercontent.com/zemlyansky/svg-pie/master/svg-pie.bundle.min.js) (~100K)
 
-##Features
+Examples:
+* [zemlyansky.github.io/svg-pie/](http://zemlyansky.github.io/svg-pie/)
+
+Features
+--------
 * tooltips
 * custom color range
 * color interpolation
@@ -19,21 +25,22 @@ Download:
 * responsive
 * animation
 
-##Usage
+Usage
+-----
 
-###DOM
+### DOM
 Add `<div id="chart"></div>` where you want to place a pie chart.
 Feel free to add any content between `<div>` and `</div>`. It'll be centered.
 
-###Javascript   
+### Javascript   
 The module return a constructor that accepts two parameters: `selector` and `options`
 
-####CommonJS
+#### CommonJS
 ```javascript
 var SvgChart = require('svg-pie')
 var chart = new SvgChart('#chart', options)
 ```
-####Browser
+#### Browser
 Use `svg-pie.min.js` together with D3:
 ```html
 <script src="https://d3js.org/d3.v4.js"></script>
@@ -47,25 +54,30 @@ Use `svg-pie.min.js` together with D3:
 ```html
 <script src="svg-pie.bundle.min.js" charset="utf-8"></script>
 <script type="text/javascript">
-  var chart = new SvgPie('#chart', options)
+  var chart = new SvgPie('#chart', {data: {...}, options: {...}})
 </script>
 ```
 
-###Options
-Options is basically an object you pass to constructor. Like that:
+### Data & Options
+Data and Options are objects you pass to constructor. Like that:
 ```javascript
-new SvgPie('#chart', {
-  dataset: [
-    {label: 'Ben', value: 10},
-    {label: 'Bill', value: 20},
-    {label: 'Jane', value: 70},
-  ],
-  innerRadiusSize: .9,
-  sort: true
-  colors: ['#FF0000','#0055EE']
+new SvgPie('#chart1', {
+    data: {
+        dataset: [
+            {label: 'Label 1', value: 65},
+            {label: 'Label 2', value: 35},
+        ]
+    },
+    options: {
+        innerRadiusSize: .7,
+        transition: 2000,
+        initialTransition: true,
+        sort: true,
+        colors: ['#44DDDD','#EEEEEE']
+    }
 })
 ```
-
+### Data
 <table>
     <tr>
         <th>Parameter</th>
@@ -88,6 +100,15 @@ new SvgPie('#chart', {
         <td>Array of strings. Alternative to <code>dataset</code></td>
     </tr>
     <tr>
+</table>
+
+### Options
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Default value</th>
+        <th>Description</th>
+    </tr>
         <td><strong>showTooltip</strong></td>
         <td><code>true</code></td>
         <td>Boolean. To show or not a tooltip</td>
@@ -126,6 +147,11 @@ new SvgPie('#chart', {
         <td><strong>percents</strong></td>
         <td><code>false</code></td>
         <td>Boolean. Pass values as percents. Calculates the <code>Other</code> field if sum < 100%</td>
+    </tr>
+    <tr>
+        <td><strong>group</strong></td>
+        <td><code>false</code></td>
+        <td>Boolean. Group small values into the <code>Other</code></td>
     </tr>    
     <tr>
         <td><strong>showOtherTooltip</strong></td>
@@ -139,19 +165,19 @@ new SvgPie('#chart', {
     </tr>
 </table>
 
-###Style
+### Style
 By default a chart, its inner content and a tooltip have no styling.
-To style the tooltip use CSS and `.tooltip`, `.tooltip-label`, `.tooltip-value` selectors.
+To style the tooltip use CSS and `.csv-tooltip`, `.csv-tooltip-label`, `.csv-tooltip-value` selectors.
 For example:
 ```CSS
-.tooltip {
+.csv-tooltip {
   font-size: .8em;
   background: white;
   box-shadow: 0 0 10px rgba(0,0,0,.2);
   padding: 10px;
   opacity: .8;
 }
-.tooltip-label {
+.csv-tooltip-label {
   font-size: 1.2em;
   font-weight: bold;
 }
