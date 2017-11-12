@@ -19,7 +19,8 @@
     "d3-interpolate": "^1.1.4",
     "d3-scale": "^1.0.5",
     "d3-selection": "^1.0.5",
-    "d3-shape": "^1.0.6"
+    "d3-shape": "^1.0.6",
+    "d3-transition": "^1.1.0"
   },
   "devDependencies": {
     "browserify": "^14.1.0",

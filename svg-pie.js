@@ -10,7 +10,8 @@
       require('d3-selection'),
       require('d3-shape'),
       require('d3-color'),
-      require('d3-interpolate')
+      require('d3-interpolate'),
+      require('d3-transition')
     )
     module.exports = factory(d3)
   } else {
