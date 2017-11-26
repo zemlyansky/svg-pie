@@ -454,7 +454,7 @@ function factory (d3) {
     }.bind(this) // End of update()
 
     this.update()
-    d3.select(window).on('resize.' + selector.replace(/[^a-z0-9_-]/gi, ''), this.render)
+    d3.select(window).on('resize.svgpie', this.render)
   } // End of SvgPie constructor
 
   return SvgPie
